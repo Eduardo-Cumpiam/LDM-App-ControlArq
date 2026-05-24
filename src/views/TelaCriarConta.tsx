@@ -1,5 +1,5 @@
-// LoginScreen.tsx
-// Tela de login para o aplicativo
+// TelaCriarConta.tsx
+// Tela de Criação de Conta para o aplicativo
 //===============================================================
 
 import React from "react";
@@ -8,17 +8,17 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { LinearGradient } from 'expo-linear-gradient';
 
 type RootStackParamList = {
-  Login: undefined;
-  Home: undefined;
+  TelaCriarConta: undefined;
+  TelaLogin: undefined;
 };
 
-type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, "Login">;
+type TelaCriarContaNavigationProp = StackNavigationProp<RootStackParamList, "TelaCriarConta">;
 
 type Props = {
-  navigation: LoginScreenNavigationProp;
+  navigation: TelaCriarContaNavigationProp;
 };
 
-export default function LoginScreen({ navigation }: Props) {
+export default function TelaCriarConta({ navigation }: Props) {
   return (
     <LinearGradient
       colors={['#000060', '#3232B5', '#00007D']}
@@ -53,7 +53,7 @@ export default function LoginScreen({ navigation }: Props) {
         onPress={() => ''}
       />
    
-      <Pressable onPress={() => navigation.navigate("Login")}>
+      <Pressable onPress={() => navigation.navigate("TelaLogin")}>
         <Text style={styles.footer}>
           já criou sua conta? faça seu login
         </Text>

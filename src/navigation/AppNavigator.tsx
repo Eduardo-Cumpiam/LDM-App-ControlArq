@@ -4,8 +4,8 @@
 
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
-import LoginScreen from "../views/TelaCriarConta";
-import HomeScreen from "../views/HomeScreen";
+import TelaCriarConta from "../views/TelaCriarConta";
+import TelaLogin from "../views/TelaLogin"
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -17,8 +17,8 @@ export default function AppNavigator() {
       <Stack.Navigator>
 
         <Stack.Screen
-          name="Login"
-          component={LoginScreen}
+          name="TelaCriarConta"
+          component={TelaCriarConta}
           options={{
             title: "Control ARQ",
             
@@ -48,8 +48,8 @@ export default function AppNavigator() {
           }}
         />
         <Stack.Screen
-          name="Home"
-          component={HomeScreen}
+          name="TelaLogin"
+          component={TelaLogin}
         />
         
       </Stack.Navigator>
