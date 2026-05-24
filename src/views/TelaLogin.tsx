@@ -99,6 +99,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#86EBFF",
     textAlign: "center",
-    marginTop: 30,
+    marginTop: 40,
   },
 }); 

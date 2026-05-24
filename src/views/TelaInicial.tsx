@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#86EBFF",
     textAlign: "center",
-    marginTop: 200,
+    marginTop: 210,
   },
   buttons: {
     gap: 60,
