@@ -80,7 +80,7 @@ export default function AppNavigator() {
           options={{
             title: "Control ARQ",
             
-            headerTintColor: "#ffffff",
+            headerTintColor: "#fff",
 
             headerTitleStyle: {
               fontWeight: "bold",
@@ -96,8 +96,8 @@ export default function AppNavigator() {
               <Ionicons
                 name="business"
                 size={30}
-                color="#ffffff"
-                style={{ marginRight: 195 }}
+                color="#fff"
+                style={{ marginRight: 140 }}
               />
             ),
           }}

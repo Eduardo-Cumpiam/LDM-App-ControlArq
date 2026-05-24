@@ -51,7 +51,7 @@ export default function TelaLogin({ navigation }: Props) {
       <Button
         title="Entrar"
         color="#00849e"
-        onPress={() => navigation.replace("TelaInicial")}
+        onPress={() => navigation.navigate("TelaInicial")}
       />
 
       <Pressable onPress={() => navigation.replace("TelaCriarConta")}>

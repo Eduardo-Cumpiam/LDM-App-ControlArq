@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "LDM-App-ControlArq",
+    "name": "ControlARQ",
     "slug": "LDM-App-ControlArq",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#00009B"
     },
     "ios": {
       "supportsTablet": true
@@ -21,7 +21,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.LDMAppControlArq"
     },
     "web": {
       "favicon": "./assets/favicon.png"

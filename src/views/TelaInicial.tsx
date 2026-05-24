@@ -30,19 +30,19 @@ export default function TelaInicial({ navigation }: Props) {
         style={{ width: 500, height: 200, alignSelf: 'center', marginTop: 200 }}
       />
 
-    <View style={styles.buttons}>
-      <Button
-        title="Projetos"
-        color="#00849e"
-        onPress={() => ''}
-      />
+      <View style={styles.buttons}>
+        <Button
+          title="Projetos"
+          color="#00849e"
+          onPress={() => ''}
+        />
 
-      <Button
-        title="Dashboards"
-        color="#00849e"
-        onPress={() => ''}
-      />
-    </View>
+        <Button
+          title="Dashboards"
+          color="#00849e"
+          onPress={() => ''}
+        />
+      </View>
 
       <Text style={styles.footer}>
         All rights reserved. &copy;ControlARQ 2026
