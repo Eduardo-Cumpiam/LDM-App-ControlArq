@@ -2,15 +2,16 @@
 // Arquivo para definir a navegação principal do aplicativo
 //===============================================================
 
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
 import TelaCriarConta from "../views/TelaCriarConta";
-import TelaLogin from "../views/TelaLogin"
+import TelaLogin from "../views/TelaLogin";
+import TelaInicial from "../views/TelaInicial";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
   return (
@@ -33,9 +34,6 @@ export default function AppNavigator() {
             headerBackground: () => (
               <LinearGradient
                 colors={['#00009B', '#1C6CBD', '#000060']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{ flex: 1 }}
               />
             ),
             headerRight: () => (
@@ -43,7 +41,7 @@ export default function AppNavigator() {
                 name="business"
                 size={30}
                 color="#ffffff"
-                style={{ marginRight: 210 }}
+                style={{ marginRight: 195 }}
               />
             ),
           }}
@@ -64,9 +62,6 @@ export default function AppNavigator() {
             headerBackground: () => (
               <LinearGradient
                 colors={['#00009B', '#1C6CBD', '#000060']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{ flex: 1 }}
               />
             ),
             headerRight: () => (
@@ -74,7 +69,35 @@ export default function AppNavigator() {
                 name="business"
                 size={30}
                 color="#ffffff"
-                style={{ marginRight: 210 }}
+                style={{ marginRight: 195 }}
+              />
+            ),
+          }}
+        />
+        <Stack.Screen
+          name="TelaInicial"
+          component={TelaInicial}
+          options={{
+            title: "Control ARQ",
+            
+            headerTintColor: "#ffffff",
+
+            headerTitleStyle: {
+              fontWeight: "bold",
+              fontSize: 25,
+            },
+
+            headerBackground: () => (
+              <LinearGradient
+                colors={['#00009B', '#1C6CBD', '#000060']}
+              />
+            ),
+            headerRight: () => (
+              <Ionicons
+                name="business"
+                size={30}
+                color="#ffffff"
+                style={{ marginRight: 195 }}
               />
             ),
           }}
