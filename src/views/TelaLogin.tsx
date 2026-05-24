@@ -1,12 +1,24 @@
 // TelaLogin.tsx
-// Tela de login para o aplicativo
+// Tela de Login para o aplicativo
 //===============================================================
 
 import React from "react";
 import { View, Text, Button, TextInput, Image, Pressable, StyleSheet } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
+import { StackNavigationProp } from "@react-navigation/stack";
 
-export default function TelaLogin() {
+type RootStackParamList = {
+  TelaCriarConta: undefined;
+  TelaLogin: undefined;
+};
+
+type TelaLoginNavigationProp = StackNavigationProp<RootStackParamList, "TelaLogin">;
+
+type Props = {
+  navigation: TelaLoginNavigationProp;
+};
+
+export default function TelaLogin({ navigation }: Props) {
   return (
     <LinearGradient
           colors={['#000060', '#3232B5', '#00007D']}
@@ -14,7 +26,7 @@ export default function TelaLogin() {
         >
           
           <Text style={styles.title}>
-            Crie a sua conta para desfrutar das melhores possibilidades de gerenciamento.
+            Controle para seus projetos de arquitetura na palma da sua mão.
           </Text>
     
           <Image
@@ -36,14 +48,14 @@ export default function TelaLogin() {
           />
     
           <Button
-            title="Criar"
+            title="Entrar"
             color="#00849e"
             onPress={() => ''}
           />
        
-          <Pressable onPress={() => navigation.navigate("TelaLogin")}>
+          <Pressable onPress={() => navigation.replace("TelaCriarConta")}>
             <Text style={styles.footer}>
-              já criou sua conta? faça seu login
+              não possui conta? crie a sua
             </Text>
           </Pressable>
     
@@ -64,6 +76,7 @@ export default function TelaLogin() {
         fontSize: 30, 
         color: "#fff",
         textAlign: "center",
+        marginBottom: 35,
       },
       subtitle: {
         fontSize: 20,

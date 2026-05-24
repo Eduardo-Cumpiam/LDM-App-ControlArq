@@ -4,8 +4,8 @@
 
 import React from "react";
 import { View, Text, Button, TextInput, Image, Pressable, StyleSheet } from "react-native";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { LinearGradient } from 'expo-linear-gradient';
+import { StackNavigationProp } from "@react-navigation/stack";
 
 type RootStackParamList = {
   TelaCriarConta: undefined;
