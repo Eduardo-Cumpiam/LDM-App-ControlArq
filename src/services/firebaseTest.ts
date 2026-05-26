@@ -1,6 +1,6 @@
 // firebaseTest.ts
 // Arquivo para testar a conexão com o Firebase Firestore
-//===========================================
+//===============================================================
 
 import { db } from "./firebaseConfig";
 import { collection, addDoc, getDocs } from "firebase/firestore";
