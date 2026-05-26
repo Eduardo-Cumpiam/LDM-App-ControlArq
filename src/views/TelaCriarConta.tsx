@@ -10,7 +10,6 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 type RootStackParamList = {
   TelaCriarConta: undefined;
   TelaLogin: undefined;
-  TelaInicial: undefined;
 };
 
 type TelaCriarContaNavigationProp = NativeStackNavigationProp<RootStackParamList, "TelaCriarConta">;

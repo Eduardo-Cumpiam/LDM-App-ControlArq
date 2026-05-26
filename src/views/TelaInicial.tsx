@@ -8,9 +8,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type RootStackParamList = {
-  TelaCriarConta: undefined;
-  TelaLogin: undefined;
   TelaInicial: undefined;
+  TelaProjetos: undefined;
+  TelaDashboards: undefined;
 };
 
 type TelaInicialNavigationProp = NativeStackNavigationProp<RootStackParamList, "TelaInicial">;
@@ -34,13 +34,13 @@ export default function TelaInicial({ navigation }: Props) {
         <Button
           title="Projetos"
           color="#00849e"
-          onPress={() => ''}
+          onPress={() => navigation.navigate("TelaProjetos")}
         />
 
         <Button
           title="Dashboards"
           color="#00849e"
-          onPress={() => ''}
+          onPress={() => navigation.navigate("TelaDashboards")}
         />
       </View>
 
