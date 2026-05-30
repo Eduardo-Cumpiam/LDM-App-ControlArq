@@ -3,7 +3,7 @@
 //===============================================================
 
 import React from "react";
-import { View, Text, Button, TextInput, Image, Pressable, StyleSheet } from "react-native";
+import { Text, Button, TextInput, Image, Pressable, StyleSheet } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 

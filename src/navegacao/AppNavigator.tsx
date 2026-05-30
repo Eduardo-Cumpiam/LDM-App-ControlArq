@@ -11,6 +11,7 @@ import TelaCriarConta from "../views/TelaCriarConta";
 import TelaLogin from "../views/TelaLogin";
 import TelaInicial from "../views/TelaInicial";
 import TelaProjetos from "../views/TelaProjetos";
+import TelaDashboards from "../views/TelaDashboards";
 
 
 const Stack = createNativeStackNavigator();
@@ -107,6 +108,34 @@ export default function AppNavigator() {
         <Stack.Screen
           name="TelaProjetos"
           component={TelaProjetos}
+          options={{
+            title: "Control ARQ",
+
+            headerTintColor: "#fff",
+
+            headerTitleStyle: {
+              fontWeight: "bold",
+              fontSize: 25,
+            },
+
+            headerBackground: () => (
+              <LinearGradient
+                colors={['#00009B', '#1C6CBD', '#000060']}
+              />
+            ),
+            headerRight: () => (
+              <Ionicons
+                name="business"
+                size={30}
+                color="#fff"
+                style={{ marginRight: 140 }}
+              />
+            ),
+          }}
+        />
+        <Stack.Screen
+          name="TelaDashboards"
+          component={TelaDashboards}
           options={{
             title: "Control ARQ",
 
