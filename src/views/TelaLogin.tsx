@@ -1,11 +1,25 @@
 // TelaLogin.tsx
-// Tela de Login para o aplicativo
+// Tela de Login Estática e Responsiva com Flexbox (Sem Scroll)
 //===============================================================
 
-import React from "react";
-import { Text, Button, TextInput, Image, Pressable, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { 
+  Text, 
+  Button, 
+  TextInput, 
+  Image, 
+  Pressable, 
+  StyleSheet, 
+  Alert, 
+  ActivityIndicator,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+  View
+} from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useAuth } from "../hooks/useAuth";
 
 type RootStackParamList = {
   TelaCriarConta: undefined;
@@ -20,85 +34,178 @@ type Props = {
 };
 
 export default function TelaLogin({ navigation }: Props) {
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [carregandoInterno, setCarregandoInterno] = useState(false);
+
+  const { login } = useAuth();
+
+  const handleLogin = async () => {
+    if (!email || !senha) {
+      Alert.alert("Atenção", "Por favor, preencha todos os campos.");
+      return;
+    }
+
+    try {
+      setCarregandoInterno(true);
+      await login(email.trim(), senha);
+      navigation.navigate("TelaInicial");
+    } catch (error: any) {
+      Alert.alert("Erro ao entrar", error.message);
+    } finally {
+      setCarregandoInterno(false);
+    }
+  };
+
   return (
     <LinearGradient
       colors={['#000060', '#3232B5', '#00007D']}
       style={styles.container}
     >
+      <SafeAreaView style={{ flex: 1 }}>
+        {/* O KeyboardAvoidingView empurra o bloco de inputs para cima de forma elegante quando o teclado abre */}
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.contentWrapper}
+        >
+          
+          {/* BLOCO SUPERIOR: Título e Imagem */}
+          <View style={styles.topSection}>
+            <Text style={styles.title}>
+              Controle para seus projetos de arquitetura na palma da sua mão.
+            </Text>
+            <Image
+              source={require('../../assets/croqui.png')}
+              style={styles.imageCroqui}
+              resizeMode="contain"
+            />
+          </View>
 
-      <Text style={styles.title}>
-        Controle para seus projetos de arquitetura na palma da sua mão.
-      </Text>
+          {/* BLOCO CENTRAL: Formulário de Login (Inputs e Botão) */}
+          <View style={styles.formSection}>
+            <Text style={styles.subtitle}>LOGIN:</Text>
+            <TextInput 
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              placeholder="seu-email@provedor.com"
+              placeholderTextColor="#999"
+            />
 
-      <Image
-        source={require('../../assets/croqui.png')}
-        style={{ width: 500, height: 200, alignSelf: 'center' }}
-      />
+            <Text style={styles.subtitle}>SENHA:</Text>
+            <TextInput 
+              style={styles.input}
+              secureTextEntry
+              value={senha}
+              onChangeText={setSenha}
+              autoCapitalize="none"
+              placeholder="******"
+              placeholderTextColor="#999"
+            />
 
-      <Text style={styles.subtitle}>
-        LOGIN:
-      </Text>
-      <TextInput style={styles.input}
-      />
+            {carregandoInterno ? (
+              <ActivityIndicator size="large" color="#86EBFF" style={{ marginVertical: 10 }} />
+            ) : (
+              <View style={styles.buttonContainer}>
+                <Button
+                  title="Entrar"
+                  color="#00849e"
+                  onPress={handleLogin}
+                />
+              </View>
+            )}
+          </View>
 
-      <Text style={styles.subtitle}>
-        SENHA:
-      </Text>
-      <TextInput style={styles.input}
-        secureTextEntry
-      />
+          {/* BLOCO INFERIOR: Links e Rodapé */}
+          <View style={styles.footerSection}>
+            <Pressable onPress={() => navigation.replace("TelaCriarConta")}>
+              <Text style={styles.footerLink}>
+                não possui conta? crie a sua
+              </Text>
+            </Pressable>
 
-      <Button
-        title="Entrar"
-        color="#00849e"
-        onPress={() => navigation.navigate("TelaInicial")}
-      />
+            <Text style={styles.copyright}>
+              All rights reserved. &copy;ControlARQ 2026
+            </Text>
+          </View>
 
-      <Pressable onPress={() => navigation.replace("TelaCriarConta")}>
-        <Text style={styles.footer}>
-          não possui conta? crie a sua
-        </Text>
-      </Pressable>
-
-      <Text style={styles.footer}>
-        All rights reserved. &copy;ControlARQ 2026
-      </Text>
-
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 30,
     flex: 1,
   },
+  contentWrapper: {
+    flex: 1,
+    paddingHorizontal: 25,
+    justifyContent: "space-between", // Divide o espaço disponível igualmente entre Topo, Centro e Rodapé
+    paddingVertical: 20,
+  },
+  topSection: {
+    alignItems: "center",
+    flex: 1.2, // Dá uma prioridade de espaço ligeiramente maior para o topo respirar
+    justifyContent: "center",
+  },
+  formSection: {
+    width: "100%",
+    justifyContent: "center",
+    flex: 1.5, // Garante espaço fixo e firme para os inputs no meio da tela
+  },
+  footerSection: {
+    alignItems: "center",
+    justifyContent: "flex-end",
+    paddingBottom: 10,
+  },
   title: {
-    fontSize: 30,
+    fontSize: 22, // Tamanho ideal para não estourar em telas pequenas
     color: "#fff",
     textAlign: "center",
-    marginTop: 80,
-    marginBottom: 60,
+    marginBottom: 15,
+    fontWeight: "600",
+  },
+  imageCroqui: {
+    width: "85%", // Ocupa uma porcentagem segura da largura do aparelho
+    height: "50%", // Ocupa metade do espaço do bloco superior, adaptando-se à altura total do celular
+    maxHeight: 140,
   },
   subtitle: {
-    fontSize: 20,
+    fontSize: 16,
     color: "#fff",
-    marginBottom: 10,
-    marginTop: 20,
-    textAlign: "center",
+    marginBottom: 5,
+    fontWeight: "500",
   },
   input: {
-    height: 40,
+    height: 44,
     borderColor: '#fff',
     borderWidth: 2,
-    marginBottom: 20,
+    marginBottom: 15,
     color: "#fff",
-    borderRadius: 5,
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)', // Um leve fundo transparente para dar elegância
   },
-  footer: {
-    fontSize: 16,
+  buttonContainer: {
+    borderRadius: 6,
+    overflow: "hidden", // Garante que a borda arredondada se aplique ao botão nativo
+    marginTop: 10,
+  },
+  footerLink: {
+    fontSize: 15,
     color: "#86EBFF",
     textAlign: "center",
-    marginTop: 40,
+    marginBottom: 15,
+    textDecorationLine: "underline", // Um sublinhado sutil para indicar clique
   },
-}); 
+  copyright: {
+    fontSize: 11,
+    color: "#86EBFF",
+    textAlign: "center",
+    opacity: 0.6,
+  }
+});
