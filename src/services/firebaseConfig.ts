@@ -1,4 +1,4 @@
-// firebaseConfig.js
+// firebaseConfig.ts
 // Arquivo contendo a configuração do Firebase para o aplicativo ControlArq
 //======================================================
 
