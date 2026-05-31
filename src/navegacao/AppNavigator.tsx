@@ -1,5 +1,6 @@
-// src/navigation/AppNavigator.tsx
+// src/navegacao/AppNavigator.tsx
 // Arquivo para definir a navegação principal do aplicativo integrado com o AuthContext
+// Autenticação e navegação estão acopladas para garantir que as telas sejam protegidas e acessíveis apenas para usuários autenticados, sendo feita diretamente no Firebase Authentication, utilizando o React Context para gerenciar o estado de autenticação globalmente.
 //=====================================================================================
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
