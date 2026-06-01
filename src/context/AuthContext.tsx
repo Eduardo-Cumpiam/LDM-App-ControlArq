@@ -4,12 +4,7 @@
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { auth, db } from '../services/firebaseConfig';
-import { 
-  signInWithEmailAndPassword, 
-  signOut,
-  onAuthStateChanged,
-  User
-} from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 // 1. Definição do formato do perfil de usuário de acordo com as regras de negócio
@@ -30,8 +25,8 @@ interface AuthContextData {
   login: (email: string, senha: string) => Promise<void>;
   cadastrarNovoFuncionario: (
     idProvisorio: string,
-    nome: string, 
-    email: string, 
+    nome: string,
+    email: string,
     nivelAcesso: 'Gestor' | 'Supervisor' | 'Colaborador',
     cargo: 'Sênior' | 'Pleno' | 'Júnior' | 'Estagiário',
     valorHora: number
@@ -84,8 +79,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Função que a tela privada do Gestor vai chamar para cadastrar a equipe
   const cadastrarNovoFuncionario = async (
     idProvisorio: string,
-    nome: string, 
-    email: string, 
+    nome: string,
+    email: string,
     nivelAcesso: 'Gestor' | 'Supervisor' | 'Colaborador',
     cargo: 'Sênior' | 'Pleno' | 'Júnior' | 'Estagiário',
     valorHora: number
@@ -109,6 +104,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const deslogar = async () => {
     await signOut(auth);
   };
+
+  console.log("AuthProvider renderizou", {
+    usuarioLogado: !!usuarioLogado,
+    carregando
+  });
 
   return (
     <AuthContext.Provider value={{ usuarioLogado, perfil, carregando, login, cadastrarNovoFuncionario, deslogar }}>

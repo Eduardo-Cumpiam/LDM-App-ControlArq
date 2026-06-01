@@ -1,7 +1,3 @@
-// TelaProjetos.tsx
-// Tela de Projetos para o aplicativo
-//===============================================================
-
 import React, { useState } from "react";
 import { View, Text, TextInput, Image, Pressable, Modal, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -132,6 +128,9 @@ export default function TelaProjetos() {
     </LinearGradient>
   );
 }
+
+
+
 
 const styles = StyleSheet.create({
   container: {

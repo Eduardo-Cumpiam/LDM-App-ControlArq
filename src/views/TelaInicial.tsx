@@ -1,9 +1,5 @@
-// TelaInicial.tsx
-// Tela inicial para o aplicativo
-//===============================================================
-
 import React from "react";
-import { View, Text, Button, TextInput, Image, Pressable, StyleSheet } from "react-native";
+import { View, Text, Button, Image, StyleSheet } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -47,10 +43,12 @@ export default function TelaInicial({ navigation }: Props) {
       <Text style={styles.footer}>
         All rights reserved. &copy;ControlARQ 2026
       </Text>
-
     </LinearGradient>
   );
 }
+
+
+
 
 const styles = StyleSheet.create({
   container: {

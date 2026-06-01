@@ -1,13 +1,10 @@
-// TelaDashboards.tsx
-// Tela para exibir os dashboards
-//===============================================================
-
 import React from "react";
 import { View, Text, Button, TextInput, Image, Pressable, StyleSheet } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type RootStackParamList = {
+    
 
 };
 
@@ -28,6 +25,9 @@ export default function TelaDashboards({ navigation }: Props) {
         </LinearGradient>
     );
 }
+
+
+
 
 const styles = StyleSheet.create({
     container: {

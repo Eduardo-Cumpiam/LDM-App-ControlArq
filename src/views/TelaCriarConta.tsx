@@ -1,20 +1,7 @@
-// TelaCriarConta.tsx
 // Tela de Criação de Conta Estática e Responsiva com Flexbox (Sem Scroll)
-//========================================================================
 
 import React, { useState } from "react";
-import { 
-  Text, 
-  Button, 
-  TextInput, 
-  Image, 
-  Pressable, 
-  StyleSheet, 
-  SafeAreaView, 
-  KeyboardAvoidingView, 
-  Platform, 
-  View 
-} from "react-native";
+import { Text, Button, TextInput, Image, Pressable, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, View } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -110,6 +97,9 @@ export default function TelaCriarConta({ navigation }: Props) {
     </LinearGradient>
   );
 }
+
+
+
 
 const styles = StyleSheet.create({
   container: {
