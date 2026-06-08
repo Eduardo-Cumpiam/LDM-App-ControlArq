@@ -1,14 +1,21 @@
+// TelaDashboards.tsx
+// Tela de Dashboards do aplicativo
+// Esta tela pode ser acessada a partir do menu lateral ou de outras telas
+//===============================================================
+
 import React from "react";
 import { View, Text, Button, TextInput, Image, Pressable, StyleSheet } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type RootStackParamList = {
-    
+    TelaDashboards: undefined;
 
 };
 
-type TelaDashboardsNavigationProp = NativeStackNavigationProp<RootStackParamList, "TelaDashboards">;
+type TelaDashboardsNavigationProp = NativeStackNavigationProp<
+    RootStackParamList,
+    "TelaDashboards">;
 
 type Props = {
     navigation: TelaDashboardsNavigationProp;

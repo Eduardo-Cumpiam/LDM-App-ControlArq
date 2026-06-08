@@ -1,4 +1,8 @@
 // Tela de Criação de Conta Estática e Responsiva com Flexbox (Sem Scroll)
+// Esta tela é a primeira que o usuário vê ao abrir o aplicativo pela primeira vez
+// Ela é projetada para ser simples, intuitiva e responsiva, utilizando Flexbox para garantir que os elementos se ajustem bem em diferentes tamanhos de tela
+// Ela é acessada somente pelo gestor, para cadastrar o usuário e o supervisor, pois o acesso dos demais usuários somente é permitido através da TelaLogin.tsx.
+//=====================================================================================================================
 
 import React, { useState } from "react";
 import { Text, Button, TextInput, Image, Pressable, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, View } from "react-native";

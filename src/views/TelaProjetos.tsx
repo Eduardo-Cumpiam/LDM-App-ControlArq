@@ -1,3 +1,9 @@
+// TelaProjetos.tsx
+// Tela de Projetos para exibir os projetos cadastrados e permitir a criação de novos projetos
+// Esta tela apresenta um layout moderno e funcional, utilizando um gradiente de fundo e um card estilizado para exibir as informações do projeto. O usuário pode visualizar detalhes como tempo estimado, orçamento estimado, tempo gasto e orçamento gasto. Além disso, há um botão para trabalhar no projeto e um ícone para adicionar novos projetos, que abre um modal para inserir o nome e a descrição do projeto.
+// Importações necessárias para construir a interface da tela de projetos, incluindo React, componentes do React Native, LinearGradient para o fundo, Ionicons para os ícones, e hooks para gerenciar o estado do modal e dos campos de entrada.
+// ====================================================================================================================
+
 import React, { useState } from "react";
 import { View, Text, TextInput, Image, Pressable, Modal, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";

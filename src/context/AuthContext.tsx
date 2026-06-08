@@ -1,10 +1,11 @@
 // src/context/AuthContext.tsx
 // Contexto global para gerenciar o estado de autenticação e permissões do ControlArq
-//========================================================================
+// O AuthContext é o coração do sistema de autenticação do ControlArq. Ele é responsável por manter o estado do usuário logado, seu perfil e as funções de login, cadastro e logout. Todas as telas do aplicativo podem acessar essas informações e funções através do hook useAuth, garantindo uma experiência consistente e segura em todo o app. O AuthProvider deve envolver toda a aplicação para que o contexto esteja disponível globalmente.
+//===========================================================================================
 
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import { auth, db } from '../services/firebaseConfig';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth';
+import { auth, db } from '../services/firebaseConfig';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 // 1. Definição do formato do perfil de usuário de acordo com as regras de negócio
@@ -12,7 +13,7 @@ interface PerfilUsuario {
   id_usuario: string;
   nome: string;
   email: string;
-  nivel_acesso: 'Gestor' | 'Supervisor' | 'Colaborador';
+  nivel_acesso: 'gestor' | 'supervisor' | 'colaborador';
   cargo: 'Sênior' | 'Pleno' | 'Júnior' | 'Estagiário';
   valor_hora_tecnica: number;
 }
@@ -27,11 +28,11 @@ interface AuthContextData {
     idProvisorio: string,
     nome: string,
     email: string,
-    nivelAcesso: 'Gestor' | 'Supervisor' | 'Colaborador',
+    nivelAcesso: 'gestor' | 'supervisor' | 'colaborador',
     cargo: 'Sênior' | 'Pleno' | 'Júnior' | 'Estagiário',
     valorHora: number
   ) => Promise<void>;
-  deslogar: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -64,15 +65,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, senha);
       const user = userCredential.user;
-
       const userDoc = await getDoc(doc(db, 'usuarios', user.uid));
+
       if (userDoc.exists()) {
         setPerfil(userDoc.data() as PerfilUsuario);
       } else {
         throw new Error('Perfil não encontrado no banco de dados.');
       }
     } catch (error: any) {
-      throw new Error('E-mail ou senha incorretos. Verifique suas credenciais.');
+      console.error("Erro de login:", error.code, error.message);
+      throw new Error(error.message); // mostra o erro real
+      //throw new Error('E-mail ou senha incorretos. Verifique suas credenciais.');
     }
   };
 
@@ -81,7 +84,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     idProvisorio: string,
     nome: string,
     email: string,
-    nivelAcesso: 'Gestor' | 'Supervisor' | 'Colaborador',
+    nivelAcesso: 'gestor' | 'supervisor' | 'colaborador',
     cargo: 'Sênior' | 'Pleno' | 'Júnior' | 'Estagiário',
     valorHora: number
   ) => {
@@ -101,18 +104,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Função para encerrar a sessão
-  const deslogar = async () => {
-    await signOut(auth);
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      setUsuarioLogado(null);
+      setPerfil(null);
+    } catch (error) {
+      console.error("Erro ao sair:", error);
+    }
   };
 
-  console.log("AuthProvider renderizou", {
-    usuarioLogado: !!usuarioLogado,
-    carregando
-  });
+//  console.log("AuthProvider renderizou", {
+//    usuarioLogado: !!usuarioLogado,
+//    carregando
+//  });
 
   return (
-    <AuthContext.Provider value={{ usuarioLogado, perfil, carregando, login, cadastrarNovoFuncionario, deslogar }}>
+    <AuthContext.Provider value={{ usuarioLogado, perfil, carregando, login, cadastrarNovoFuncionario, logout }}>
       {children}
     </AuthContext.Provider>
   );
+};
+  
+// 🔑 Hook para consumir o contexto
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth deve ser usado dentro de AuthProvider");
+  }
+  return context;
 };

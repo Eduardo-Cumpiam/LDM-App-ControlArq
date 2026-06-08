@@ -1,3 +1,8 @@
+// TelaInicial.tsx
+// Tela Inicial do aplicativo
+// Esta tela é a porta de entrada para o usuário, onde ele pode escolher entre acessar os Projetos ou os Dashboards. O design é simples e direto, com um gradiente de fundo e uma imagem centralizada para dar as boas-vindas ao usuário. Os botões são destacados para facilitar a navegação, e um rodapé discreto reforça a identidade da marca.
+//======================================================================================================================
+
 import React from "react";
 import { View, Text, Button, Image, StyleSheet } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
