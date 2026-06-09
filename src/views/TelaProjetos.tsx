@@ -1,162 +1,162 @@
 // TelaProjetos.tsx
-// Tela de Projetos para exibir os projetos cadastrados e permitir a criação de novos projetos
-// Esta tela apresenta um layout moderno e funcional, utilizando um gradiente de fundo e um card estilizado para exibir as informações do projeto. O usuário pode visualizar detalhes como tempo estimado, orçamento estimado, tempo gasto e orçamento gasto. Além disso, há um botão para trabalhar no projeto e um ícone para adicionar novos projetos, que abre um modal para inserir o nome e a descrição do projeto.
-// Importações necessárias para construir a interface da tela de projetos, incluindo React, componentes do React Native, LinearGradient para o fundo, Ionicons para os ícones, e hooks para gerenciar o estado do modal e dos campos de entrada.
-// ====================================================================================================================
+// Tela de Projetos para exibir os projetos cadastrados em tempo real do Firestore
+// ====================================================================================
 
-import React, { useState } from "react";
-import { View, Text, TextInput, Image, Pressable, Modal, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, Image, Pressable, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
+// Importações do Firebase
+import { db } from "../services/firebaseConfig";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+
+// Definindo a estrutura do objeto de Projeto para o TypeScript
+interface Projeto {
+  id: string;
+  nome_projeto: string;
+  cliente_associado: string;
+  descricao: string;
+  horas_orcadas: number;
+  horas_gastas: number;
+  valor_gasto: number;
+  status: string;
+}
 
 export default function TelaProjetos() {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [nomeProjeto, setNomeProjeto] = useState("");
-  const [descricao, setDescricao] = useState("");
+  const navigation = useNavigation<any>();
+  const [projetos, setProjetos] = useState<Projeto[]>([]);
+  const [carregando, setCarregando] = useState(true);
 
-  const adicionarProjeto = () => {
-    console.log({ nomeProjeto, descricao });
-    setNomeProjeto("");
-    setDescricao("");
-    setModalVisible(false);
-  };
+  // Hook para buscar os dados do Firestore em tempo real
+  useEffect(() => {
+    const q = query(collection(db, "projetos"), orderBy("data_criacao", "desc"));
+
+    // O onSnapshot atualiza a tela na hora se alguém mudar algo no banco
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const listaProjetos: Projeto[] = [];
+      querySnapshot.forEach((doc) => {
+        const dados = doc.data();
+        listaProjetos.push({
+          id: doc.id, // <-- Capturando o ID automático do documento que conversamos!
+          nome_projeto: dados.nome_projeto || "Sem nome",
+          cliente_associado: dados.cliente_associado || dados.fk_cliente || "Sem cliente",
+          descricao: dados.descricao || "Sem descrição.",
+          horas_orcadas: dados.horas_orcadas || 0,
+          horas_gastas: dados.horas_gastas || 0,
+          valor_gasto: dados.valor_gasto || 0,
+          status: dados.status || "Ativo",
+        });
+      });
+      setProjetos(listaProjetos);
+      setCarregando(false);
+    }, (error) => {
+      console.error("Erro ao buscar projetos: ", error);
+      setCarregando(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Função que renderiza cada Card dinâmico da lista
+  const renderItemProjeto = ({ item }: { item: Projeto }) => (
+    <View style={styles.card}>
+      <Image
+        source={{ uri: "https://picsum.photos/300/200" }}
+        style={styles.image}
+      />
+
+      <View style={styles.content}>
+        {/* Título Real do Projeto */}
+        <Text style={styles.projectTitle}>{item.nome_projeto.toUpperCase()}</Text>
+        <Text style={styles.clientText}>Cliente: {item.cliente_associado}</Text>
+        
+        <View style={styles.divider} />
+
+        <Text style={styles.title}>
+          Tempo Orcado: <Text style={styles.tempo_estimado}>{item.horas_orcadas}h</Text>
+        </Text>
+
+        <Text style={styles.title}>
+          Tempo Gasto: <Text style={styles.tempo_gasto}>{item.horas_gastas}h</Text>
+        </Text>
+
+        <Text style={styles.title}>
+          Custo Atual: <Text style={styles.tempo_gasto}>R$ {item.valor_gasto.toFixed(2)}</Text>
+        </Text>
+
+        <Text style={styles.descricao}>{item.descricao}</Text>
+
+        <Pressable 
+          style={styles.button}
+          onPress={() => {
+            // Aqui passamos o ID do projeto para a próxima tela saber com quem trabalhar!
+            navigation.navigate("TelaCadastroEtapas", { projetoId: item.id, projetoNome: item.nome_projeto });
+          }}
+        >
+          <Text style={styles.buttonText}>TRABALHAR NESTE PROJETO</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
 
   return (
-    <LinearGradient
-      colors={["#000060", "#3232B5", "#00007D"]}
-      style={styles.container}
-    >
+    <LinearGradient colors={["#000060", "#3232B5", "#00007D"]} style={styles.container}>
+      
+      {/* HEADER */}
       <View style={styles.header}>
         <Text style={styles.namepage}>PROJETOS</Text>
 
+        {/* Clicar no "+" agora abre a nossa tela oficial de cadastro */}
         <Ionicons
           name="add-circle"
           size={40}
           color="#00aeff"
-          style={{ marginTop: 80 }}
-          onPress={() => setModalVisible(true)}
+          style={{ marginTop: 40 }}
+          onPress={() => navigation.navigate("TelaCadastroProjetos")}
         />
       </View>
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Novo Projeto</Text>
-
-            <TextInput
-              placeholder="Nome do Projeto"
-              value={nomeProjeto}
-              onChangeText={setNomeProjeto}
-              style={styles.input}
-            />
-
-            <TextInput
-              placeholder="Descrição"
-              value={descricao}
-              onChangeText={setDescricao}
-              multiline
-              numberOfLines={4}
-              style={[styles.input, styles.textArea]}
-            />
-
-            <Pressable
-              style={styles.addButton}
-              onPress={adicionarProjeto}
-            >
-              <Text style={styles.addButtonText}>
-                Adicionar Projeto
-              </Text>
-            </Pressable>
-
-            <Pressable
-              style={styles.cancelButton}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.addButtonText}>
-                Cancelar
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
-
-      <View style={styles.card}>
-        <Image
-          source={{
-            uri: "https://picsum.photos/300/200",
-          }}
-          style={styles.image}
+      {/* LISTAGEM DINÂMICA OU INDICADOR DE CARREGANDO */}
+      {carregando ? (
+        <ActivityIndicator size="large" color="#86EBFF" style={{ flex: 1 }} />
+      ) : (
+        <FlatList
+          data={projetos}
+          keyExtractor={(item) => item.id} // Usa o ID do Firebase como chave única
+          renderItem={renderItemProjeto}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 30 }}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>Nenhum projeto cadastrado no momento.</Text>
+          }
         />
+      )}
 
-        <View style={styles.content}>
-          <Text style={styles.title}>
-            Tempo Estimado:{" "}
-            <Text style={styles.tempo_estimado}>1200h</Text>
-          </Text>
-
-          <Text style={styles.title}>
-            Orçamento Estimado:{" "}
-            <Text style={styles.orcamento_estimado}>
-              R$50.000,00
-            </Text>
-          </Text>
-
-          <Text style={styles.title}>
-            Tempo Gasto:{" "}
-            <Text style={styles.tempo_gasto}>175h</Text>
-          </Text>
-
-          <Text style={styles.title}>
-            Orçamento Gasto:{" "}
-            <Text style={styles.orcamento_gasto}>
-              R$7.500,00
-            </Text>
-          </Text>
-
-          <Text style={styles.descricao}>
-            Esse é um exemplo simples de card bonito usando apenas
-            React Native.
-          </Text>
-
-          <Pressable style={styles.button}>
-            <Text style={styles.buttonText}>
-              TRABALHAR NESTE PROJETO
-            </Text>
-          </Pressable>
-        </View>
-      </View>
     </LinearGradient>
   );
 }
 
-
-
-
 const styles = StyleSheet.create({
   container: {
-    padding: 30,
+    paddingHorizontal: 20,
     flex: 1,
   },
   header: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
-    gap: 20,
+    marginBottom: 15,
   },
   namepage: {
     fontSize: 25,
     color: "#fff",
-    marginTop: 80,
+    marginTop: 40,
     fontWeight: "bold",
   },
   card: {
-    width: 320,
+    width: '100%',
     marginTop: 20,
     backgroundColor: "#0017c9",
     borderRadius: 20,
@@ -166,43 +166,50 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    height: 200,
+    height: 140,
   },
   content: {
     padding: 16,
   },
-  title: {
-    fontSize: 18,
+  projectTitle: {
+    fontSize: 20,
     fontWeight: "bold",
+    color: "#86EBFF",
+    marginBottom: 2,
+  },
+  clientText: {
+    fontSize: 14,
+    color: "#FFF",
+    opacity: 0.8,
+    marginBottom: 8,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    marginBottom: 10,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "500",
     color: "#FFFFFF",
     marginBottom: 5,
   },
   tempo_estimado: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#00cc22",
-  },
-  orcamento_estimado: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "bold",
     color: "#00cc22",
   },
   tempo_gasto: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#ff4444",
-  },
-  orcamento_gasto: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "bold",
     color: "#ff4444",
   },
   descricao: {
-    fontSize: 15,
+    fontSize: 14,
     color: "#BBBBBB",
-    lineHeight: 22,
-    marginBottom: 20,
-    marginTop: 10,
+    lineHeight: 20,
+    marginBottom: 15,
+    marginTop: 8,
   },
   button: {
     backgroundColor: "#00aeff",
@@ -213,53 +220,13 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#FFFFFF",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 14,
   },
-  modalBackground: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.6)",
-  },
-  modalContainer: {
-    width: "85%",
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 20,
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 15,
-  },
-  textArea: {
-    height: 100,
-    textAlignVertical: "top",
-  },
-  addButton: {
-    backgroundColor: "#1226ff",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  cancelButton: {
-    backgroundColor: "#777",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  addButtonText: {
+  emptyText: {
     color: "#fff",
-    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 40,
     fontSize: 16,
-  },
+    opacity: 0.6,
+  }
 });

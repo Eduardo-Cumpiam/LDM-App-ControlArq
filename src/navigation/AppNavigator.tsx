@@ -6,6 +6,7 @@
 // - Se autenticado e perfil ≠ Gestor → TelaInicial
 // ====================================================================================================================
 
+import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -31,6 +32,9 @@ const Stack = createNativeStackNavigator();
 function NavigatorInterno() {
   const { usuarioLogado, perfil, logout } = useAuth();
 
+  // Tratamento preventivo para ler o nível de acesso independente de letras maiúsculas/minúsculas
+  const nivelAcesso = perfil?.nivel_acesso?.toLowerCase() || "";
+
   return (
     <Stack.Navigator
       screenOptions={({ navigation }) => ({
@@ -48,35 +52,21 @@ function NavigatorInterno() {
       })}
     >
       {!usuarioLogado ? (
-        // Usuário não logado → TelaLogin
+        // 1. Caso: Usuário não logado → TelaLogin
         <Stack.Screen
           name="TelaLogin"
           component={TelaLogin}
           options={{
-            //title: "Control ARQ",
             headerShown: false,
-            //headerTintColor: "#fff",
-            //headerTitleStyle: { fontWeight: "bold", fontSize: 25 },
-            //headerBackground: () => (
-             // <LinearGradient colors={["#00009B", "#1C6CBD", "#000060"]} />
-           // ),
-           // headerRight: () => (
-           //   <Ionicons
-           //     name="business"
-           //     size={30}
-           //     color="#ffffff"
-           //     style={{ marginRight: 195 }}
-           //   />
-           // ),
           }}
         />
-      ) : perfil?.nivel_acesso === "gestor" ? (
-        // Usuário logado e gestor → TelaGestorInicial
+      ) : nivelAcesso === "gestor" ? (
+        // 2. Caso: Usuário logado e gestor → Telas Administrativas
         <>
           <Stack.Screen
             name="TelaGestorInicial"
             component={TelaGestorInicial}
-            options={({ navigation }) => ({
+            options={() => ({
               title: "Área do Gestor",
               headerRight: () => (
                 <Ionicons
@@ -84,70 +74,53 @@ function NavigatorInterno() {
                   size={24}
                   color="#00849e"
                   style={{ marginRight: 10 }}
-                  onPress={() => {
-                    // chama logout do AuthContext
-                    logout();
-                  
-                        //title: "Control ARQ",
-              //headerShown: false,
-              //headerTintColor: "#fff",
-              //headerTitleStyle: { fontWeight: "bold", fontSize: 25 },
-              //headerBackground: () => (
-              //  <LinearGradient colors={["#00009B", "#1C6CBD", "#000060"]} />
-              //),
-              //headerRight: () => (
-              //  <Ionicons
-              //    name="business"
-              //    size={30}
-              //    color="#fff"
-              //    style={{ marginRight: 140 }}
-              //  />
-              //),
-            }}
+                  onPress={() => logout()}
+                />
+              ),
+            })}
           />
-           ),
-         })}
-        />
-        
-          {/* Tela de Gestão e cadastros acessíveis apenas ao gestor */}
-          <Stack.Screen name="TelaGestao" component={TelaGestao} />
-          <Stack.Screen name="TelaCadastroUsuarios" component={TelaCadastroUsuarios} />
-          <Stack.Screen name="TelaCadastroClientes" component={TelaCadastroClientes} />
-          <Stack.Screen name="TelaCadastroProjetos" component={TelaCadastroProjetos} />
-          <Stack.Screen name="TelaCadastroEtapas" component={TelaCadastroEtapas} />
+          
+          {/* Telas exclusivas e cadastros do Gestor */}
+          <Stack.Screen name="TelaGestao" component={TelaGestao} options={{ title: "Gestão" }} />
+          <Stack.Screen name="TelaCadastroUsuarios" component={TelaCadastroUsuarios} options={{ title: "Cadastrar Usuário" }} />
+          <Stack.Screen name="TelaCadastroClientes" component={TelaCadastroClientes} options={{ title: "Cadastrar Cliente" }} />
+          <Stack.Screen name="TelaCadastroProjetos" component={TelaCadastroProjetos} options={{ title: "Cadastrar Projeto" }} />
+          <Stack.Screen name="TelaCadastroEtapas" component={TelaCadastroEtapas} options={{ title: "Etapas do Projeto" }} />
 
-          {/* Telas comuns também acessíveis ao gestor */}
-          <Stack.Screen name="TelaProjetos" component={TelaProjetos} />
-          <Stack.Screen name="TelaDashboards" component={TelaDashboards} />
+          {/* Telas comuns acessíveis também ao gestor */}
+          <Stack.Screen name="TelaProjetos" component={TelaProjetos} options={{ title: "Projetos" }} />
+          <Stack.Screen name="TelaDashboards" component={TelaDashboards} options={{ title: "Dashboards" }} />
         </>
       ) : (
-        // Usuário logado e não gestor → TelaInicial
+        // 3. Caso: Usuário logado e Colaborador/Supervisor → Telas Comuns
         <>
           <Stack.Screen
             name="TelaInicial"
             component={TelaInicial}
             options={{
               title: "Control ARQ",
-              headerShown: false,
+              headerShown: true, // Ativado para exibir o botão de voltar e o topo estilizado
+              headerBackground: () => (
+                <LinearGradient colors={["#00009B", "#1C6CBD", "#000060"]} style={{ flex: 1 }} />
+              ),
               headerTintColor: "#fff",
               headerTitleStyle: { fontWeight: "bold", fontSize: 25 },
-              headerBackground: () => (
-                <LinearGradient colors={["#00009B", "#1C6CBD", "#000060"]} />
-              ),
               headerRight: () => (
                 <Ionicons
-                  name="business"
-                  size={30}
+                  name="log-out-outline"
+                  size={24}
                   color="#fff"
-                  style={{ marginRight: 140 }}
+                  style={{ marginRight: 10 }}
+                  onPress={() => logout()}
                 />
               ),
             }}
           />
 
-          {/* Telas comuns a todos os usuários */}
-          <Stack.Screen name="TelaProjetos" component={TelaProjetos} />
-          <Stack.Screen name="TelaDashboards" component={TelaDashboards} />
+          {/* Telas comuns acessíveis aos colaboradores */}
+          <Stack.Screen name="TelaProjetos" component={TelaProjetos} options={{ title: "Projetos" }} />
+          <Stack.Screen name="TelaDashboards" component={TelaDashboards} options={{ title: "Dashboards" }} />
+          <Stack.Screen name="TelaCadastroEtapas" component={TelaCadastroEtapas} options={{ title: "Lançar Horas" }} />
         </>
       )}
     </Stack.Navigator>
