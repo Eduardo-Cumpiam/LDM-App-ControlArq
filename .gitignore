@@ -41,4 +41,4 @@ Bkp*.*
 
 # generated native folders
 /ios
-/android
+/android"docs/" 

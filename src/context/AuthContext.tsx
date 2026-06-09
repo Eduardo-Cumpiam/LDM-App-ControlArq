@@ -8,7 +8,7 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'f
 import { auth, db } from '../services/firebaseConfig';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
-// 1. Definição do formato do perfil de usuário de acordo com as regras de negócio
+// 1. Definição do formato do perfil de usuário
 interface PerfilUsuario {
   id_usuario: string;
   nome: string;
@@ -16,9 +16,10 @@ interface PerfilUsuario {
   nivel_acesso: 'gestor' | 'supervisor' | 'colaborador';
   cargo: 'Sênior' | 'Pleno' | 'Júnior' | 'Estagiário';
   valor_hora_tecnica: number;
+  status: 'pendente' | 'autorizado' | 'excluído';
 }
 
-// 2. Contrato de tudo o que o contexto vai exportar para as telas usarem
+// 2. Contrato do contexto
 interface AuthContextData {
   usuarioLogado: User | null;
   perfil: PerfilUsuario | null;
@@ -42,14 +43,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
   const [carregando, setCarregando] = useState(true);
 
-  // Monitor de estado: verifica se o usuário já estava logado ao abrir o app
+  // Monitor de estado
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUsuarioLogado(user);
         const userDoc = await getDoc(doc(db, 'usuarios', user.uid));
         if (userDoc.exists()) {
-          setPerfil(userDoc.data() as PerfilUsuario);
+          const perfilData = userDoc.data() as PerfilUsuario;
+          setPerfil(perfilData);
         }
       } else {
         setUsuarioLogado(null);
@@ -60,7 +62,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return unsubscribe;
   }, []);
 
-  // Função para a sua telaLogin realizar a autenticação
+  // Função de login com validação de status
   const login = async (email: string, senha: string) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, senha);
@@ -68,18 +70,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const userDoc = await getDoc(doc(db, 'usuarios', user.uid));
 
       if (userDoc.exists()) {
-        setPerfil(userDoc.data() as PerfilUsuario);
+        const perfilData = userDoc.data() as PerfilUsuario;
+        if (perfilData.status !== 'autorizado') {
+          throw new Error('Usuário ainda não autorizado pelo gestor.');
+        }
+        setPerfil(perfilData);
       } else {
         throw new Error('Perfil não encontrado no banco de dados.');
       }
     } catch (error: any) {
       console.error("Erro de login:", error.code, error.message);
-      throw new Error(error.message); // mostra o erro real
-      //throw new Error('E-mail ou senha incorretos. Verifique suas credenciais.');
+      throw new Error(error.message);
     }
   };
 
-  // Função que a tela privada do Gestor vai chamar para cadastrar a equipe
+  // Cadastro inicial de funcionário (sempre pendente)
   const cadastrarNovoFuncionario = async (
     idProvisorio: string,
     nome: string,
@@ -96,6 +101,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         nivel_acesso: nivelAcesso,
         cargo,
         valor_hora_tecnica: Number(valorHora),
+        status: 'pendente', // sempre começa como pendente
         data_cadastro: new Date().toISOString()
       });
     } catch (error: any) {
@@ -103,7 +109,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  // Função para encerrar a sessão
+  // Logout
   const logout = async () => {
     try {
       await signOut(auth);
@@ -114,19 +120,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-//  console.log("AuthProvider renderizou", {
-//    usuarioLogado: !!usuarioLogado,
-//    carregando
-//  });
-
   return (
     <AuthContext.Provider value={{ usuarioLogado, perfil, carregando, login, cadastrarNovoFuncionario, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
-  
-// 🔑 Hook para consumir o contexto
+
+// Hook para consumir o contexto
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

@@ -8,6 +8,7 @@ import React from "react";
 import { Text, Pressable, StyleSheet, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
 
 type RootStackParamList = {
   TelaGestao: undefined;
@@ -31,28 +32,32 @@ export default function TelaGestao({ navigation }: Props) {
     >
       <View style={styles.contentWrapper}>
 
-        {/* BLOCO SUPERIOR: Título */}
+        {/* BLOCO SUPERIOR: Cabeçalho */}
         <View style={styles.topSection}>
           <Text style={styles.title}>Módulo de Gestão</Text>
-          <Text style={styles.subtitle}>Cadastros principais do sistema</Text>
+          <Text style={styles.subtitle}>Área exclusiva do Gestor</Text>
         </View>
 
         {/* BLOCO CENTRAL: Botões de Gestão */}
         <View style={styles.centerSection}>
           <Pressable style={styles.button} onPress={() => navigation.navigate("TelaCadastroUsuarios")}>
-            <Text style={styles.buttonText}>USUÁRIOS</Text>
+            <Ionicons name="people" size={22} color="#fff" style={styles.icon} />
+            <Text style={styles.buttonText}>Usuários</Text>
           </Pressable>
 
           <Pressable style={styles.button} onPress={() => navigation.navigate("TelaCadastroClientes")}>
-            <Text style={styles.buttonText}>CLIENTES</Text>
+            <Ionicons name="person-circle" size={22} color="#fff" style={styles.icon} />
+            <Text style={styles.buttonText}>Clientes</Text>
           </Pressable>
 
           <Pressable style={styles.button} onPress={() => navigation.navigate("TelaCadastroProjetos")}>
-            <Text style={styles.buttonText}>PROJETOS</Text>
+            <Ionicons name="folder-open" size={22} color="#fff" style={styles.icon} />
+            <Text style={styles.buttonText}>Projetos</Text>
           </Pressable>
 
           <Pressable style={styles.button} onPress={() => navigation.navigate("TelaCadastroEtapas")}>
-            <Text style={styles.buttonText}>ETAPAS</Text>
+            <Ionicons name="construct" size={22} color="#fff" style={styles.icon} />
+            <Text style={styles.buttonText}>Etapas</Text>
           </Pressable>
         </View>
 
@@ -69,9 +74,7 @@ export default function TelaGestao({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   contentWrapper: {
     flex: 1,
     paddingHorizontal: 25,
@@ -95,7 +98,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 26,
-    color: "#fff",
+    color: "#FF8C00", // cor diferenciada para destacar o módulo de gestão
     fontWeight: "700",
     marginBottom: 10,
   },
@@ -105,11 +108,16 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   button: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "#00849e",
     borderRadius: 6,
     paddingVertical: 12,
-    paddingHorizontal: 40,
+    paddingHorizontal: 30,
     marginVertical: 10,
+  },
+  icon: {
+    marginRight: 10,
   },
   buttonText: {
     color: "#fff",

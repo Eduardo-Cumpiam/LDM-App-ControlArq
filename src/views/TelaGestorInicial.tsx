@@ -1,5 +1,5 @@
 // TelaGestorInicial.tsx
-// Tela inicial para usuários com nível de acesso "Gestor"
+// Tela inicial exclusiva para gestores, com ícones e cabeçalho destacado.
 // Esta tela mantém o mesmo padrão visual das demais (gradiente de fundo, divisão em blocos com Flexbox),
 // mas adiciona uma opção extra de "Gestão", que leva para o módulo de cadastros (usuários, clientes, projetos, etapas).
 // ====================================================================================================================
@@ -8,6 +8,7 @@ import React from "react";
 import { Text, Pressable, StyleSheet, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
 
 type RootStackParamList = {
   TelaGestorInicial: undefined;
@@ -30,24 +31,27 @@ export default function TelaGestorInicial({ navigation }: Props) {
     >
       <View style={styles.contentWrapper}>
 
-        {/* BLOCO SUPERIOR: Título */}
+        {/* BLOCO SUPERIOR: Cabeçalho */}
         <View style={styles.topSection}>
-          <Text style={styles.title}>Control ARQ</Text>
+          <Text style={styles.title}>Área do Gestor</Text>
           <Text style={styles.subtitle}>Gestão e Controle de Projetos</Text>
         </View>
 
         {/* BLOCO CENTRAL: Botões principais */}
         <View style={styles.centerSection}>
           <Pressable style={styles.button} onPress={() => navigation.navigate("TelaProjetos")}>
-            <Text style={styles.buttonText}>PROJETOS</Text>
+            <Ionicons name="folder-open" size={22} color="#fff" style={styles.icon} />
+            <Text style={styles.buttonText}>Projetos</Text>
           </Pressable>
 
           <Pressable style={styles.button} onPress={() => navigation.navigate("TelaDashboards")}>
-            <Text style={styles.buttonText}>DASHBOARDS</Text>
+            <Ionicons name="stats-chart" size={22} color="#fff" style={styles.icon} />
+            <Text style={styles.buttonText}>Dashboards</Text>
           </Pressable>
 
           <Pressable style={styles.buttonGestao} onPress={() => navigation.navigate("TelaGestao")}>
-            <Text style={styles.buttonText}>GESTÃO</Text>
+            <Ionicons name="settings" size={22} color="#fff" style={styles.icon} />
+            <Text style={styles.buttonText}>Gestão</Text>
           </Pressable>
         </View>
 
@@ -64,9 +68,7 @@ export default function TelaGestorInicial({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   contentWrapper: {
     flex: 1,
     paddingHorizontal: 25,
@@ -90,7 +92,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    color: "#fff",
+    color: "#FF8C00", // cor diferenciada para destacar "Área do Gestor"
     fontWeight: "700",
     marginBottom: 10,
   },
@@ -100,18 +102,25 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   button: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "#00849e",
     borderRadius: 6,
     paddingVertical: 12,
-    paddingHorizontal: 40,
+    paddingHorizontal: 30,
     marginVertical: 10,
   },
   buttonGestao: {
-    backgroundColor: "#FF8C00", // cor diferenciada para destacar a opção de gestão
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FF8C00", // cor diferenciada para gestão
     borderRadius: 6,
     paddingVertical: 12,
-    paddingHorizontal: 40,
+    paddingHorizontal: 30,
     marginVertical: 10,
+  },
+  icon: {
+    marginRight: 10,
   },
   buttonText: {
     color: "#fff",

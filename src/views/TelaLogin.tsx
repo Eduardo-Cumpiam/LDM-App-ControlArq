@@ -22,7 +22,11 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useAuth } from "../context/AuthContext"; // ✅ ajuste da importação
+import { useAuth } from "../context/AuthContext";
+
+// Firebase Auth
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../services/firebaseConfig";
 
 type RootStackParamList = {
   TelaCriarConta: undefined;
@@ -50,10 +54,16 @@ export default function TelaLogin({ navigation }: Props) {
   // ✅ Redirecionamento seguro após perfil ser carregado
   useEffect(() => {
     if (!carregando && perfil) {
-      if (perfil.nivel_acesso === "gestor") {
-        navigation.replace("TelaGestorInicial");
-      } else {
-        navigation.replace("TelaInicial");
+      if (perfil.status === "autorizado") {
+        if (perfil.nivel_acesso === "gestor") {
+          navigation.replace("TelaGestorInicial");
+        } else {
+          navigation.replace("TelaInicial");
+        }
+      } else if (perfil.status === "pendente") {
+        Alert.alert("Acesso pendente", "Seu cadastro ainda não foi autorizado pelo gestor.");
+      } else if (perfil.status === "excluído") {
+        Alert.alert("Acesso negado", "Seu cadastro foi desativado pelo gestor.");
       }
     }
   }, [perfil, carregando]);
@@ -72,6 +82,23 @@ export default function TelaLogin({ navigation }: Props) {
       Alert.alert("Erro ao entrar", error.message);
     } finally {
       setCarregandoInterno(false);
+    }
+  };
+
+  const redefinirSenha = async () => {
+    if (!email) {
+      Alert.alert("Atenção", "Digite o email para redefinir a senha.");
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email.trim());
+      Alert.alert(
+        "Email enviado",
+        "Verifique sua caixa de entrada para redefinir a senha."
+      );
+    } catch (error: any) {
+      Alert.alert("Erro ao enviar email", error.message);
     }
   };
 
@@ -128,9 +155,19 @@ export default function TelaLogin({ navigation }: Props) {
                 style={{ marginVertical: 10 }}
               />
             ) : (
-              <View style={styles.buttonContainer}>
-                <Button title="Entrar" color="#00849e" onPress={handleLogin} />
-              </View>
+              <>
+                <View style={styles.buttonContainer}>
+                  <Button title="Entrar" color="#00849e" onPress={handleLogin} />
+                </View>
+
+                <View style={styles.buttonContainer}>
+                  <Button
+                    title="Esqueci minha senha"
+                    color="#86EBFF"
+                    onPress={redefinirSenha}
+                  />
+                </View>
+              </>
             )}
           </View>
 

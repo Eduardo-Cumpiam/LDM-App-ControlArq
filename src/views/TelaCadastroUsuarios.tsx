@@ -1,29 +1,24 @@
 // TelaCadastroUsuarios.tsx
-// Tela para cadastro de usuários (supervisor e colaborador), acessível apenas para gestores
-// Esta tela é protegida e só pode ser acessada por usuários com perfil de gestor, garantindo que apenas pessoas autorizadas possam criar novos usuários no sistema. A navegação para esta tela é controlada pelo AppNavigator, que verifica o perfil do usuário antes de permitir o acesso.
-//==================================================================================================================
+// Tela para gestão de usuários: liberação e exclusão.
+// O gestor visualiza todos os usuários cadastrados e pode alterar o status.
+// ====================================================================================================================
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Text,
-  Button,
-  TextInput,
   StyleSheet,
   SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
   View,
   Alert,
+  FlatList,
+  TouchableOpacity,
 } from "react-native";
-
 import { LinearGradient } from "expo-linear-gradient";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Picker } from "@react-native-picker/picker";
 
 // Firebase
-import { auth, db } from "../services/firebaseConfig";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { db } from "../services/firebaseConfig";
+import { doc, updateDoc, collection, getDocs } from "firebase/firestore";
 
 type RootStackParamList = {
   TelaCadastroUsuarios: undefined;
@@ -39,116 +34,87 @@ type Props = {
   navigation: TelaCadastroUsuariosNavigationProp;
 };
 
+interface Usuario {
+  id_usuario: string;
+  email: string;
+  nivel_acesso: string;
+  status: "pendente" | "autorizado" | "excluído";
+}
+
 export default function TelaCadastroUsuarios({ navigation }: Props) {
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [cargo, setCargo] = useState("supervisor"); // valor inicial
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
 
-  const validarEmail = (email: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
+  // Carregar lista de usuários
+  useEffect(() => {
+    const carregarUsuarios = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "usuarios"));
+        const lista: Usuario[] = [];
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data() as Usuario;
+          lista.push(data);
+        });
+        setUsuarios(lista);
+      } catch (error: any) {
+        Alert.alert("Erro", "Não foi possível carregar os usuários.");
+      }
+    };
+    carregarUsuarios();
+  }, []);
 
-  const cadastrarUsuario = async () => {
-    if (!email || !senha || !cargo) {
-      Alert.alert("Atenção", "Preencha todos os campos.");
-      return;
-    }
-
-    if (!validarEmail(email)) {
-      Alert.alert("Email inválido", "Digite um email válido no formato seuemail@provedor.com.");
-      return;
-    }
-
-    if (senha.length < 6) {
-      Alert.alert("Senha inválida", "A senha deve ter pelo menos 6 caracteres.");
-      return;
-    }
-
+  const atualizarStatus = async (id: string, novoStatus: "pendente" | "autorizado" | "excluído") => {
     try {
-      const cred = await createUserWithEmailAndPassword(auth, email.trim(), senha);
-      const user = cred.user;
-
-      await setDoc(doc(db, "usuarios", user.uid), {
-        id_usuario: user.uid,
-        email: user.email,
-        nivel_acesso: cargo, // supervisor ou colaborador
-        data_cadastro: new Date().toISOString(),
-      });
-
-      Alert.alert("Sucesso", "Usuário cadastrado com sucesso!");
-      navigation.goBack();
+      await updateDoc(doc(db, "usuarios", id), { status: novoStatus });
+      Alert.alert("Sucesso", `Usuário atualizado para ${novoStatus}.`);
+      setUsuarios((prev) =>
+        prev.map((u) => (u.id_usuario === id ? { ...u, status: novoStatus } : u))
+      );
     } catch (error: any) {
-      Alert.alert("Erro ao cadastrar usuário", error.message);
+      Alert.alert("Erro", "Não foi possível atualizar o status.");
     }
   };
+
+  const renderUsuario = ({ item }: { item: Usuario }) => (
+    <View style={styles.card}>
+      <Text style={styles.email}>{item.email}</Text>
+      <Text style={styles.info}>Cargo: {item.nivel_acesso}</Text>
+      <Text style={styles.info}>Status: {item.status}</Text>
+
+      <View style={styles.actions}>
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: "#00849e" }]}
+          onPress={() => atualizarStatus(item.id_usuario, "autorizado")}
+        >
+          <Text style={styles.buttonText}>Autorizar</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: "#ff9800" }]}
+          onPress={() => atualizarStatus(item.id_usuario, "pendente")}
+        >
+          <Text style={styles.buttonText}>Pendente</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: "#e53935" }]}
+          onPress={() => atualizarStatus(item.id_usuario, "excluído")}
+        >
+          <Text style={styles.buttonText}>Excluir</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
   return (
-    <LinearGradient
-      colors={["#000060", "#3232B5", "#00007D"]}
-      style={styles.container}
-    >
+    <LinearGradient colors={["#000060", "#3232B5", "#00007D"]} style={styles.container}>
       <SafeAreaView style={{ flex: 1 }}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.contentWrapper}
-        >
-          {/* BLOCO SUPERIOR: Título */}
-          <View style={styles.topSection}>
-            <Text style={styles.title}>Cadastro de Usuários</Text>
-            <Text style={styles.subtitle}>
-              Apenas o gestor pode cadastrar supervisores e colaboradores
-            </Text>
-          </View>
-
-          {/* BLOCO CENTRAL: Formulário */}
-          <View style={styles.formSection}>
-            <Text style={styles.label}>Email:</Text>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              placeholder="seu-email@provedor.com"
-              placeholderTextColor="#999"
-            />
-
-            <Text style={styles.label}>Senha:</Text>
-            <TextInput
-              style={styles.input}
-              secureTextEntry
-              value={senha}
-              onChangeText={setSenha}
-              autoCapitalize="none"
-              placeholder="******"
-              placeholderTextColor="#999"
-            />
-
-            <Text style={styles.label}>Cargo:</Text>
-            <View style={styles.pickerWrapper}>
-              <Picker
-                selectedValue={cargo}
-                onValueChange={(itemValue) => setCargo(itemValue)}
-                style={styles.picker}
-              >
-                <Picker.Item label="Supervisor" value="supervisor" />
-                <Picker.Item label="Colaborador" value="colaborador" />
-              </Picker>
-            </View>
-
-            <View style={styles.buttonContainer}>
-              <Button title="Cadastrar" color="#00849e" onPress={cadastrarUsuario} />
-            </View>
-          </View>
-
-          {/* BLOCO INFERIOR: Rodapé */}
-          <View style={styles.footerSection}>
-            <Text style={styles.footerText}>
-              All rights reserved. ©ControlARQ 2026
-            </Text>
-          </View>
-        </KeyboardAvoidingView>
+        <Text style={styles.title}>Gestão de Usuários</Text>
+        <FlatList
+          data={usuarios}
+          keyExtractor={(item) => item.id_usuario}
+          renderItem={renderUsuario}
+          contentContainerStyle={{ padding: 20 }}
+        />
       </SafeAreaView>
     </LinearGradient>
   );
@@ -156,75 +122,43 @@ export default function TelaCadastroUsuarios({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  contentWrapper: {
-    flex: 1,
-    paddingHorizontal: 25,
-    justifyContent: "space-between",
-    paddingVertical: 20,
-  },
-  topSection: {
-    alignItems: "center",
-    flex: 1.3,
-    justifyContent: "center",
-  },
-  formSection: {
-    width: "100%",
-    justifyContent: "center",
-    flex: 1.5,
-  },
-  footerSection: {
-    alignItems: "center",
-    justifyContent: "flex-end",
-    paddingBottom: 10,
-  },
   title: {
     fontSize: 22,
     color: "#fff",
     textAlign: "center",
-    marginBottom: 10,
+    marginVertical: 15,
     fontWeight: "700",
   },
-  subtitle: {
-    fontSize: 14,
-    color: "#86EBFF",
-    textAlign: "center",
-    marginBottom: 20,
+  card: {
+    backgroundColor: "rgba(255,255,255,0.1)",
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 15,
   },
-  label: {
+  email: {
     fontSize: 16,
     color: "#fff",
-    marginBottom: 5,
-    fontWeight: "500",
+    fontWeight: "600",
   },
-  input: {
-    height: 44,
-    borderColor: "#fff",
-    borderWidth: 2,
-    marginBottom: 15,
-    color: "#fff",
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+  info: {
+    fontSize: 14,
+    color: "#86EBFF",
+    marginTop: 4,
   },
-  pickerWrapper: {
-    borderWidth: 2,
-    borderColor: "#fff",
-    borderRadius: 6,
-    marginBottom: 15,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-  },
-  picker: {
-    color: "#fff",
-  },
-  buttonContainer: {
-    borderRadius: 6,
-    overflow: "hidden",
+  actions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 10,
   },
-  footerText: {
-    fontSize: 11,
-    color: "#86EBFF",
-    textAlign: "center",
-    opacity: 0.6,
+  button: {
+    flex: 1,
+    marginHorizontal: 5,
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
   },
 });
