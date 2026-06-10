@@ -2,177 +2,220 @@
 // Tela para cadastro de projetos com controle de escopo e descrição
 //===================================================================================
 
-import React, { useState } from "react";
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  Button, 
-  StyleSheet, 
-  Alert, 
+import React, { useState, useEffect, useContext } from "react";
+import {
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
   ActivityIndicator,
   SafeAreaView,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  View,
+  TouchableOpacity,
 } from "react-native";
-import { LinearGradient } from 'expo-linear-gradient';
-import { db } from "../services/firebaseConfig"; 
-import { collection, addDoc } from "firebase/firestore";
+import { LinearGradient } from "expo-linear-gradient";
+import { db } from "../services/firebaseConfig";
+import { collection, addDoc, getDocs } from "firebase/firestore";
+import { Picker } from "@react-native-picker/picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { AuthContext } from "../context/AuthContext"; // exemplo de contexto
 
 export default function TelaCadastroProjetos() {
+  const { usuarioLogado, perfil } = useContext(AuthContext); // usuário logado
   const [nomeProjeto, setNomeProjeto] = useState("");
-  const [fkCliente, setFkCliente] = useState(""); 
-  const [dataInicio, setDataInicio] = useState("");
-  const [dataTermino, setDataTermino] = useState("");
+  const [clienteSelecionado, setClienteSelecionado] = useState("");
+  const [clientes, setClientes] = useState<{ id: string; nome: string }[]>([]);
+  const [dataInicio, setDataInicio] = useState<Date | null>(null);
+  const [dataTermino, setDataTermino] = useState<Date | null>(null);
+  const [showInicio, setShowInicio] = useState(false);
+  const [showTermino, setShowTermino] = useState(false);
   const [horasOrcadas, setHorasOrcadas] = useState("");
-  const [descricao, setDescricao] = useState(""); // Novo estado para a descrição do projeto
-  
+  const [valorOrcamento, setValorOrcamento] = useState("");
+  const [descricao, setDescricao] = useState("");
   const [carregando, setCarregando] = useState(false);
 
+  // Validação de perfil: apenas gestor pode acessar
+  if (!perfil || perfil.nivel_acesso !== "gestor") {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text style={{ color: "#fff", fontSize: 16 }}>
+          Apenas gestores podem cadastrar projetos.
+        </Text>
+      </View>
+    );
+  }
+
+  // Carregar clientes do Firestore
+  useEffect(() => {
+    const carregarClientes = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "clientes"));
+        const lista: { id: string; nome: string }[] = [];
+        querySnapshot.forEach((docSnap) => {
+          const dados = docSnap.data();
+          lista.push({ id: docSnap.id, nome: dados.nome || "Sem nome" });
+        });
+        setClientes(lista);
+      } catch (error: any) {
+        Alert.alert("Erro", "Não foi possível carregar os clientes.");
+      }
+    };
+    carregarClientes();
+  }, []);
+
   const handleSalvarProjeto = async () => {
-    // Validação dos campos obrigatórios
-    if (!nomeProjeto || !fkCliente || !dataInicio || !dataTermino || !horasOrcadas || !descricao) {
-      Alert.alert("Atenção", "Por favor, preencha todos os campos do projeto.");
+    if (!nomeProjeto || !clienteSelecionado || !dataInicio || !dataTermino || !horasOrcadas || !valorOrcamento || !descricao) {
+      Alert.alert("Atenção", "Preencha todos os campos.");
       return;
     }
 
     try {
       setCarregando(true);
 
-      // Salva os dados no Firestore alinhado com a sua nova estrutura de negócio
       await addDoc(collection(db, "projetos"), {
         nome_projeto: nomeProjeto,
-        fk_cliente: fkCliente, 
+        fk_cliente: clienteSelecionado,
+        gestor_id: usuarioLogado?.uid, // quem cadastrou
         horas_orcadas: parseInt(horasOrcadas, 10) || 0,
-        descricao: descricao, // Salva como string na nuvem
-        
-        // Campos de controle dinâmico do ControlArq
-        data_inicio: dataInicio,
-        data_termino: dataTermino,
-        horas_gastas: 0, 
-        valor_gasto: 0,  
-        status: "Ativo", 
-        data_criacao: new Date().toISOString()
+        valor_orcamento: parseFloat(valorOrcamento) || 0,
+        descricao,
+        data_inicio: dataInicio.toISOString(),
+        data_termino: dataTermino.toISOString(),
+        horas_gastas: 0,
+        valor_gasto: 0,
+        status: "Ativo",
+        data_criacao: new Date().toISOString(),
       });
 
-      Alert.alert("Sucesso!", "Projeto cadastrado com sucesso no ControlArq!");
-      
-      // Limpa todos os campos para o próximo cadastro
+      Alert.alert("Sucesso!", "Projeto cadastrado com sucesso!");
       setNomeProjeto("");
-      setFkCliente("");
-      setDataInicio("");
-      setDataTermino("");
+      setClienteSelecionado("");
+      setDataInicio(null);
+      setDataTermino(null);
       setHorasOrcadas("");
+      setValorOrcamento("");
       setDescricao("");
-
     } catch (error: any) {
-      Alert.alert("Erro ao salvar", "Não foi possível salvar o projeto: " + error.message);
+      Alert.alert("Erro ao salvar", error.message);
     } finally {
       setCarregando(false);
     }
   };
 
   return (
-    <LinearGradient
-      colors={['#000060', '#3232B5', '#00007D']}
-      style={styles.container}
-    >
+    <LinearGradient colors={["#000060", "#3232B5", "#00007D"]} style={styles.container}>
       <SafeAreaView style={{ flex: 1 }}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.contentWrapper}
-        >
-          
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.contentWrapper}>
           <View style={styles.headerSection}>
             <Text style={styles.title}>Novo Projeto</Text>
-            <Text style={styles.description}>
-              Insira as especificações do escopo para iniciar o monitoramento.
-            </Text>
+            <Text style={styles.description}>Insira as especificações do escopo para iniciar o monitoramento.</Text>
           </View>
 
           <View style={styles.formSection}>
-            
-            <Text style={styles.label}>NOME DO PROJETO:</Text>
+            <Text style={styles.label}>Nome do Projeto:</Text>
             <TextInput
               style={styles.input}
-              placeholder="Ex: Reforma Residencial Univem"
-              placeholderTextColor="#999"
               value={nomeProjeto}
               onChangeText={setNomeProjeto}
-            />
-
-            <Text style={styles.label}>CLIENTE ASSOCIADO (OU ID):</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Ex: Nome do cliente ou ID"
+              placeholder="Ex: Reforma Residencial Univem"
               placeholderTextColor="#999"
-              value={fkCliente}
-              onChangeText={setFkCliente}
             />
 
-            {/* Linha horizontal para as datas */}
-            <View style={styles.row}>
-              <View style={{ flex: 1, marginRight: 10 }}>
-                <Text style={styles.label}>DATA INÍCIO:</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="31/05/2026"
-                  placeholderTextColor="#999"
-                  value={dataInicio}
-                  onChangeText={setDataInicio}
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.label}>DATA TÉRMINO:</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="20/12/2026"
-                  placeholderTextColor="#999"
-                  value={dataTermino}
-                  onChangeText={setDataTermino}
-                />
-              </View>
+            <Text style={styles.label}>Cliente Associado:</Text>
+            <View style={styles.pickerWrapper}>
+              <Picker
+                selectedValue={clienteSelecionado}
+                onValueChange={(itemValue) => setClienteSelecionado(itemValue)}
+                style={styles.picker}
+              >
+                <Picker.Item label="Selecione um cliente" value="" />
+                {clientes.map((c) => (
+                  <Picker.Item key={c.id} label={c.nome} value={c.id} />
+                ))}
+              </Picker>
             </View>
 
-            <Text style={styles.label}>HORAS ORÇADAS:</Text>
+            <Text style={styles.label}>Data Início:</Text>
+            <TouchableOpacity onPress={() => setShowInicio(true)} style={styles.input}>
+              <Text style={{ color: "#fff" }}>
+                {dataInicio ? dataInicio.toLocaleDateString("pt-BR") : "Selecione a data"}
+              </Text>
+            </TouchableOpacity>
+            {showInicio && (
+              <DateTimePicker
+                value={dataInicio || new Date()}
+                mode="date"
+                display="default"
+                onChange={(_, date) => {
+                  setShowInicio(false);
+                  if (date) setDataInicio(date);
+                }}
+              />
+            )}
+
+            <Text style={styles.label}>Data Término:</Text>
+            <TouchableOpacity onPress={() => setShowTermino(true)} style={styles.input}>
+              <Text style={{ color: "#fff" }}>
+                {dataTermino ? dataTermino.toLocaleDateString("pt-BR") : "Selecione a data"}
+              </Text>
+            </TouchableOpacity>
+            {showTermino && (
+              <DateTimePicker
+                value={dataTermino || new Date()}
+                mode="date"
+                display="default"
+                onChange={(_, date) => {
+                  setShowTermino(false);
+                  if (date) setDataTermino(date);
+                }}
+              />
+            )}
+
+            <Text style={styles.label}>Horas Orçadas:</Text>
             <TextInput
               style={styles.input}
+              value={horasOrcadas}
+              onChangeText={setHorasOrcadas}
               placeholder="Ex: 120"
               placeholderTextColor="#999"
               keyboardType="numeric"
-              value={horasOrcadas}
-              onChangeText={setHorasOrcadas}
             />
 
-            <Text style={styles.label}>DESCRIÇÃO / ESCOPO DO PROJETO:</Text>
+            <Text style={styles.label}>Valor Total de Orçamento (R$):</Text>
             <TextInput
-              style={[styles.input, styles.textArea]} // Aplica estilo estendido de caixa de texto maior
-              placeholder="Ex: Detalhamento de interiores, paginação de piso e gesso..."
+              style={styles.input}
+              value={valorOrcamento}
+              onChangeText={setValorOrcamento}
+              placeholder="Ex: 50000"
               placeholderTextColor="#999"
-              multiline={true}
-              numberOfLines={3}
+              keyboardType="numeric"
+            />
+
+            <Text style={styles.label}>Descrição / Escopo:</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
               value={descricao}
               onChangeText={setDescricao}
+              placeholder="Detalhamento do escopo..."
+              placeholderTextColor="#999"
+              multiline
             />
 
             {carregando ? (
               <ActivityIndicator size="large" color="#86EBFF" style={{ marginVertical: 10 }} />
             ) : (
               <View style={styles.buttonContainer}>
-                <Button
-                  title="Salvar Projeto"
-                  color="#00849e"
-                  onPress={handleSalvarProjeto}
-                />
+                <Button title="Salvar Projeto" color="#00849e" onPress={handleSalvarProjeto} />
               </View>
             )}
-
           </View>
 
           <View style={styles.footerSection}>
-            <Text style={styles.copyright}>ControlARQ 2026 &copy; All rights reserved.</Text>
+            <Text style={styles.footerText}>ControlARQ 2026 © All rights reserved.</Text>
           </View>
-
         </KeyboardAvoidingView>
       </SafeAreaView>
     </LinearGradient>
@@ -188,13 +231,26 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, color: "#fff", fontWeight: "bold", textAlign: "center", marginBottom: 3 },
   description: { fontSize: 13, color: "#86EBFF", textAlign: "center" },
   label: { fontSize: 13, color: "#fff", marginBottom: 4, fontWeight: "500" },
-  input: { height: 42, borderColor: '#fff', borderWidth: 2, marginBottom: 12, color: "#fff", borderRadius: 6, paddingHorizontal: 12, backgroundColor: 'rgba(255, 255, 255, 0.05)' },
-  textArea: {
-    height: 70, // Dá uma altura extra para o usuário conseguir ver o bloco de texto digitado
-    paddingTop: 8,
-    textAlignVertical: 'top', // Garante que o texto comece no topo esquerdo do campo no Android
+  input: {
+    height: 42,
+    borderColor: "#fff",
+    borderWidth: 2,
+    marginBottom: 12,
+    color: "#fff",
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    justifyContent: "center",
   },
-  row: { flexDirection: "row", width: "100%" },
+  textArea: { height: 70, paddingTop: 8, textAlignVertical: "top" },
+  pickerWrapper: {
+    borderWidth: 2,
+    borderColor: "#fff",
+    borderRadius: 6,
+    marginBottom: 15,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+  },
+  picker: { color: "#fff" },
   buttonContainer: { borderRadius: 6, overflow: "hidden", marginTop: 5 },
-  copyright: { fontSize: 11, color: "#86EBFF", opacity: 0.5 }
+  footerText: { fontSize: 11, color: "#86EBFF", opacity: 0.5 },
 });
