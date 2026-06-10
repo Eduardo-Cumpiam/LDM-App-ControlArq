@@ -116,6 +116,7 @@ function NavigatorInterno() {
       {/* Telas comuns a todos os usuários */}
       <Stack.Screen name="TelaProjetos" component={TelaProjetos} />
       <Stack.Screen name="TelaDashboards" component={TelaDashboards} />
+      <Stack.Screen name="TelaCadastroEtapas" component={TelaCadastroEtapas} />
     </Stack.Navigator>
   );
 }
