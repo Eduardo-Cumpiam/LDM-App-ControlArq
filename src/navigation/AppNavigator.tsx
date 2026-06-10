@@ -7,13 +7,15 @@
 // - Se autenticado e status = autorizado e perfil ≠ Gestor → TelaInicial
 // ====================================================================================================================
 
+import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 
-// Importação das Telas
+// Telas
 import TelaLogin from "../views/TelaLogin";
+import TelaCriarConta from "../views/TelaCriarConta";
 import TelaGestorInicial from "../views/TelaGestorInicial";
 import TelaGestao from "../views/TelaGestao";
 import TelaInicial from "../views/TelaInicial";
@@ -23,8 +25,9 @@ import TelaCadastroUsuarios from "../views/TelaCadastroUsuarios";
 import TelaCadastroClientes from "../views/TelaCadastroClientes";
 import TelaCadastroProjetos from "../views/TelaCadastroProjetos";
 import TelaCadastroEtapas from "../views/TelaCadastroEtapas";
+import TelaLancamentoHoras from "../views/TelaLancamentoHoras";
 
-// Contexto de Autenticação
+// Contexto
 import { AuthProvider, useAuth } from "../context/AuthContext";
 
 const Stack = createNativeStackNavigator();
@@ -32,7 +35,7 @@ const Stack = createNativeStackNavigator();
 function NavigatorInterno() {
   const { usuarioLogado, perfil, logout } = useAuth();
 
-  // Usuário não logado → TelaLogin
+  // Não logado → TelaLogin + TelaCriarConta
   if (!usuarioLogado) {
     return (
       <Stack.Navigator>
@@ -41,11 +44,16 @@ function NavigatorInterno() {
           component={TelaLogin}
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="TelaCriarConta"
+          component={TelaCriarConta}
+          options={{ headerShown: false }}
+        />
       </Stack.Navigator>
     );
   }
 
-  // Usuário logado mas não autorizado → mantém na TelaLogin
+  // Logado mas não autorizado → mantém na TelaLogin
   if (perfil?.status !== "autorizado") {
     return (
       <Stack.Navigator>
@@ -54,11 +62,16 @@ function NavigatorInterno() {
           component={TelaLogin}
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="TelaCriarConta"
+          component={TelaCriarConta}
+          options={{ headerShown: false }}
+        />
       </Stack.Navigator>
     );
   }
 
-  // Usuário autorizado e gestor → stack do gestor
+  // Autorizado e gestor → stack do gestor
   if (perfil?.nivel_acesso === "gestor") {
     return (
       <Stack.Navigator
@@ -83,21 +96,19 @@ function NavigatorInterno() {
             ),
           }}
         />
-        {/* Telas exclusivas do gestor */}
         <Stack.Screen name="TelaGestao" component={TelaGestao} />
         <Stack.Screen name="TelaCadastroUsuarios" component={TelaCadastroUsuarios} />
         <Stack.Screen name="TelaCadastroClientes" component={TelaCadastroClientes} />
         <Stack.Screen name="TelaCadastroProjetos" component={TelaCadastroProjetos} />
         <Stack.Screen name="TelaCadastroEtapas" component={TelaCadastroEtapas} />
-
-        {/* Telas comuns também acessíveis ao gestor */}
         <Stack.Screen name="TelaProjetos" component={TelaProjetos} />
+        <Stack.Screen name="TelaLancamentoHoras" component={TelaLancamentoHoras} />
         <Stack.Screen name="TelaDashboards" component={TelaDashboards} />
       </Stack.Navigator>
     );
   }
 
-  // Usuário autorizado e não gestor → stack comum
+  // Autorizado e não gestor → stack comum
   return (
     <Stack.Navigator
       screenOptions={{
@@ -113,10 +124,9 @@ function NavigatorInterno() {
         component={TelaInicial}
         options={{ headerShown: false }}
       />
-      {/* Telas comuns a todos os usuários */}
       <Stack.Screen name="TelaProjetos" component={TelaProjetos} />
       <Stack.Screen name="TelaDashboards" component={TelaDashboards} />
-      <Stack.Screen name="TelaCadastroEtapas" component={TelaCadastroEtapas} />
+      <Stack.Screen name="TelaLancamentoHoras" component={TelaLancamentoHoras} />
     </Stack.Navigator>
   );
 }

@@ -1,6 +1,6 @@
 // babel.config.js
 // Arquivo para configurar o Babel, permitindo o uso de variáveis de ambiente a partir do arquivo .env
-//===================================================================
+//======================================================================================================
 
 module.exports = function (api) {
   api.cache(true);

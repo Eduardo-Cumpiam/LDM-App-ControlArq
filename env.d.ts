@@ -1,6 +1,7 @@
 // env.d.ts
 // Arquivo de declaração para variáveis de ambiente do Firebase
-//======================================================
+// Modelo de declaração para o módulo "@env" utilizado para acessar as variáveis de ambiente definidas no arquivo .env, garantindo que o TypeScript reconheça os tipos dessas variáveis e permita seu uso seguro em todo o aplicativo.
+//========================================================================================================================
 
 declare module "@env" {
   export const FIREBASE_API_KEY: string;

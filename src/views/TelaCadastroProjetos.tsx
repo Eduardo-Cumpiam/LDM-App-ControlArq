@@ -1,5 +1,6 @@
 // TelaCadastroProjetos.tsx
 // Tela para cadastro de projetos com controle de escopo e descrição
+// Esta tela é acessível apenas para gestores, permitindo a criação de novos projetos vinculados a clientes existentes
 //===================================================================================
 
 import React, { useState, useEffect, useContext } from "react";

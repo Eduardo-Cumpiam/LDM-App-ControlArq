@@ -1,57 +1,121 @@
-// Tela de Criação de Conta Estática e Responsiva com Flexbox (Sem Scroll)
+// TelaCriarConta.tsx
+// Tela de Criação de Conta alinhada ao fluxo de cadastro inicial sempre pendente.
+// Utiliza o AuthContext para registrar o usuário no Firebase Auth e salvar o perfil no Firestore.
 // Esta tela é a primeira que o usuário vê ao abrir o aplicativo pela primeira vez
 // Ela é projetada para ser simples, intuitiva e responsiva, utilizando Flexbox para garantir que os elementos se ajustem bem em diferentes tamanhos de tela
-// Ela é acessada somente pelo gestor, para cadastrar o usuário e o supervisor, pois o acesso dos demais usuários somente é permitido através da TelaLogin.tsx.
 //=====================================================================================================================
 
 import React, { useState } from "react";
-import { Text, Button, TextInput, Image, Pressable, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, View } from "react-native";
-import { LinearGradient } from 'expo-linear-gradient';
+import {
+  Text,
+  Button,
+  TextInput,
+  Image,
+  Pressable,
+  StyleSheet,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+  View,
+  Alert,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../services/firebaseConfig";
+import { useAuth } from "../context/AuthContext";
 
 type RootStackParamList = {
   TelaCriarConta: undefined;
   TelaLogin: undefined;
 };
 
-type TelaCriarContaNavigationProp = NativeStackNavigationProp<RootStackParamList, "TelaCriarConta">;
+type TelaCriarContaNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "TelaCriarConta"
+>;
 
 type Props = {
   navigation: TelaCriarContaNavigationProp;
 };
 
 export default function TelaCriarConta({ navigation }: Props) {
-  // Estados para capturar os dados quando formos amarrar o cadastro
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [nome, setNome] = useState("");
+
+  const { cadastrarNovoFuncionario } = useAuth();
+
+  const handleCriarConta = async () => {
+    if (!email || !senha || !nome) {
+      Alert.alert("Atenção", "Preencha todos os campos.");
+      return;
+    }
+
+    try {
+      // Cria usuário no Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email.trim(),
+        senha
+      );
+      const user = userCredential.user;
+
+      // Salva perfil no Firestore com status pendente
+      await cadastrarNovoFuncionario(
+        user.uid,
+        nome,
+        email.trim(),
+        "colaborador", // padrão inicial
+        "Júnior",      // padrão inicial
+        0              // valor hora inicial
+      );
+
+      Alert.alert(
+        "Conta criada",
+        "Seu cadastro foi realizado e está pendente de autorização do gestor."
+      );
+      navigation.replace("TelaLogin");
+    } catch (error: any) {
+      Alert.alert("Erro ao criar conta", error.message);
+    }
+  };
 
   return (
     <LinearGradient
-      colors={['#000060', '#3232B5', '#00007D']}
+      colors={["#000060", "#3232B5", "#00007D"]}
       style={styles.container}
     >
       <SafeAreaView style={{ flex: 1 }}>
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.contentWrapper}
         >
-
-          {/* BLOCO SUPERIOR: Título e Imagem */}
+          {/* BLOCO SUPERIOR */}
           <View style={styles.topSection}>
             <Text style={styles.title}>
               Crie a sua conta para desfrutar das melhores possibilidades de gerenciamento.
             </Text>
             <Image
-              source={require('../../assets/croqui.png')}
+              source={require("../../assets/croqui.png")}
               style={styles.imageCroqui}
               resizeMode="contain"
             />
           </View>
 
-          {/* BLOCO CENTRAL: Formulário de Cadastro */}
+          {/* BLOCO CENTRAL */}
           <View style={styles.formSection}>
-            <Text style={styles.subtitle}>LOGIN:</Text>
-            <TextInput 
+            <Text style={styles.subtitle}>NOME:</Text>
+            <TextInput
+              style={styles.input}
+              value={nome}
+              onChangeText={setNome}
+              placeholder="Seu nome completo"
+              placeholderTextColor="#999"
+            />
+
+            <Text style={styles.subtitle}>E-MAIL:</Text>
+            <TextInput
               style={styles.input}
               value={email}
               onChangeText={setEmail}
@@ -62,7 +126,7 @@ export default function TelaCriarConta({ navigation }: Props) {
             />
 
             <Text style={styles.subtitle}>SENHA:</Text>
-            <TextInput 
+            <TextInput
               style={styles.input}
               secureTextEntry
               value={senha}
@@ -73,17 +137,11 @@ export default function TelaCriarConta({ navigation }: Props) {
             />
 
             <View style={styles.buttonContainer}>
-              <Button
-                title="Criar"
-                color="#00849e"
-                onPress={() => {
-                  // Aqui depois chamaremos a função de cadastro
-                }}
-              />
+              <Button title="Criar" color="#00849e" onPress={handleCriarConta} />
             </View>
           </View>
 
-          {/* BLOCO INFERIOR: Links e Rodapé */}
+          {/* BLOCO INFERIOR */}
           <View style={styles.footerSection}>
             <Pressable onPress={() => navigation.replace("TelaLogin")}>
               <Text style={styles.footerLink}>
@@ -92,32 +150,26 @@ export default function TelaCriarConta({ navigation }: Props) {
             </Pressable>
 
             <Text style={styles.copyright}>
-              All rights reserved. &copy;ControlARQ 2026
+              All rights reserved. ©ControlARQ 2026
             </Text>
           </View>
-
         </KeyboardAvoidingView>
       </SafeAreaView>
     </LinearGradient>
   );
 }
 
-
-
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   contentWrapper: {
     flex: 1,
     paddingHorizontal: 25,
-    justifyContent: "space-between", // Distribui os blocos proporcionalmente
+    justifyContent: "space-between",
     paddingVertical: 20,
   },
   topSection: {
     alignItems: "center",
-    flex: 1.3, // Um pouquinho mais de espaço para o texto maior de criação de conta
+    flex: 1.3,
     justifyContent: "center",
   },
   formSection: {
@@ -131,7 +183,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   title: {
-    fontSize: 20, // Ajustado de 30 para 20 porque esse texto é mais longo e ocupava muita tela
+    fontSize: 20,
     color: "#fff",
     textAlign: "center",
     marginBottom: 15,
@@ -141,7 +193,7 @@ const styles = StyleSheet.create({
     width: "85%",
     height: "45%",
     maxHeight: 130,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   subtitle: {
     fontSize: 16,
@@ -151,13 +203,13 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 44,
-    borderColor: '#fff',
+    borderColor: "#fff",
     borderWidth: 2,
     marginBottom: 15,
     color: "#fff",
     borderRadius: 6,
     paddingHorizontal: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
   },
   buttonContainer: {
     borderRadius: 6,
@@ -176,5 +228,5 @@ const styles = StyleSheet.create({
     color: "#86EBFF",
     textAlign: "center",
     opacity: 0.6,
-  }
+  },
 });

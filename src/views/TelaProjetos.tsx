@@ -1,5 +1,6 @@
 // TelaProjetos.tsx
 // Tela de Projetos para exibir os projetos cadastrados em tempo real do Firestore
+// Ajustada para navegar para TelaLancamentoHoras
 // ====================================================================================
 
 import React, { useState, useEffect } from "react";
@@ -8,11 +9,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-// Importações do Firebase
+// Firebase
 import { db } from "../services/firebaseConfig";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 
-// Definindo a estrutura do objeto de Projeto para o TypeScript
+// Estrutura do objeto Projeto
 interface Projeto {
   id: string;
   nome_projeto: string;
@@ -29,37 +30,38 @@ export default function TelaProjetos() {
   const [projetos, setProjetos] = useState<Projeto[]>([]);
   const [carregando, setCarregando] = useState(true);
 
-  // Hook para buscar os dados do Firestore em tempo real
   useEffect(() => {
     const q = query(collection(db, "projetos"), orderBy("data_criacao", "desc"));
 
-    // O onSnapshot atualiza a tela na hora se alguém mudar algo no banco
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const listaProjetos: Projeto[] = [];
-      querySnapshot.forEach((doc) => {
-        const dados = doc.data();
-        listaProjetos.push({
-          id: doc.id, // <-- Capturando o ID automático do documento que conversamos!
-          nome_projeto: dados.nome_projeto || "Sem nome",
-          cliente_associado: dados.cliente_associado || dados.fk_cliente || "Sem cliente",
-          descricao: dados.descricao || "Sem descrição.",
-          horas_orcadas: dados.horas_orcadas || 0,
-          horas_gastas: dados.horas_gastas || 0,
-          valor_gasto: dados.valor_gasto || 0,
-          status: dados.status || "Ativo",
+    const unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
+        const listaProjetos: Projeto[] = [];
+        querySnapshot.forEach((doc) => {
+          const dados = doc.data();
+          listaProjetos.push({
+            id: doc.id,
+            nome_projeto: dados.nome_projeto || "Sem nome",
+            cliente_associado: dados.cliente_associado || dados.fk_cliente || "Sem cliente",
+            descricao: dados.descricao || "Sem descrição.",
+            horas_orcadas: dados.horas_orcadas || 0,
+            horas_gastas: dados.horas_gastas || 0,
+            valor_gasto: dados.valor_gasto || 0,
+            status: dados.status || "Ativo",
+          });
         });
-      });
-      setProjetos(listaProjetos);
-      setCarregando(false);
-    }, (error) => {
-      console.error("Erro ao buscar projetos: ", error);
-      setCarregando(false);
-    });
+        setProjetos(listaProjetos);
+        setCarregando(false);
+      },
+      (error) => {
+        console.error("Erro ao buscar projetos: ", error);
+        setCarregando(false);
+      }
+    );
 
     return () => unsubscribe();
   }, []);
 
-  // Função que renderiza cada Card dinâmico da lista
   const renderItemProjeto = ({ item }: { item: Projeto }) => (
     <View style={styles.card}>
       <Image
@@ -68,7 +70,6 @@ export default function TelaProjetos() {
       />
 
       <View style={styles.content}>
-        {/* Título Real do Projeto */}
         <Text style={styles.projectTitle}>{item.nome_projeto.toUpperCase()}</Text>
         <Text style={styles.clientText}>Cliente: {item.cliente_associado}</Text>
         
@@ -91,11 +92,13 @@ export default function TelaProjetos() {
         <Pressable 
           style={styles.button}
           onPress={() => {
-            // Aqui passamos o ID do projeto para a próxima tela saber com quem trabalhar!
-            navigation.navigate("TelaCadastroEtapas", { projetoId: item.id, projetoNome: item.nome_projeto });
+            navigation.navigate("TelaLancamentoHoras", {
+              projetoId: item.id,
+              projetoNome: item.nome_projeto
+            });
           }}
         >
-          <Text style={styles.buttonText}>TRABALHAR NESTE PROJETO</Text>
+          <Text style={styles.buttonText}>LANÇAR HORAS</Text>
         </Pressable>
       </View>
     </View>
@@ -108,7 +111,6 @@ export default function TelaProjetos() {
       <View style={styles.header}>
         <Text style={styles.namepage}>PROJETOS</Text>
 
-        {/* Clicar no "+" agora abre a nossa tela oficial de cadastro */}
         <Ionicons
           name="add-circle"
           size={40}
@@ -118,13 +120,12 @@ export default function TelaProjetos() {
         />
       </View>
 
-      {/* LISTAGEM DINÂMICA OU INDICADOR DE CARREGANDO */}
       {carregando ? (
         <ActivityIndicator size="large" color="#86EBFF" style={{ flex: 1 }} />
       ) : (
         <FlatList
           data={projetos}
-          keyExtractor={(item) => item.id} // Usa o ID do Firebase como chave única
+          keyExtractor={(item) => item.id}
           renderItem={renderItemProjeto}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 30 }}
@@ -133,7 +134,6 @@ export default function TelaProjetos() {
           }
         />
       )}
-
     </LinearGradient>
   );
 }

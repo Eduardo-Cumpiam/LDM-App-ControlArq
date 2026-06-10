@@ -3,7 +3,7 @@
 // Após autenticação, utiliza o perfil carregado pelo AuthContext para decidir a navegação:
 // - Usuário comum → TelaInicial
 // - Gestor → TelaGestorInicial
-// Inclui ajuste para evitar que o teclado cubra os campos de entrada.
+// Inclui ajuste para evitar que o teclado cubra os campos de entrada e agora também inclui login via Google.
 // ====================================================================================================================
 
 import React, { useState, useEffect } from "react";
@@ -126,7 +126,7 @@ export default function TelaLogin({ navigation }: Props) {
 
           {/* BLOCO CENTRAL */}
           <View style={styles.formSection}>
-            <Text style={styles.subtitle}>LOGIN:</Text>
+            <Text style={styles.subtitle}>E-MAIL:</Text>
             <TextInput
               style={styles.input}
               value={email}
@@ -173,7 +173,7 @@ export default function TelaLogin({ navigation }: Props) {
 
           {/* BLOCO INFERIOR */}
           <View style={styles.footerSection}>
-            <Pressable onPress={() => navigation.replace("TelaCriarConta")}>
+            <Pressable onPress={() => navigation.navigate("TelaCriarConta")}>
               <Text style={styles.footerLink}>
                 não possui conta? crie a sua
               </Text>

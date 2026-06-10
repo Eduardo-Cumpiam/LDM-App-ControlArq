@@ -1,6 +1,7 @@
 // TelaCadastroUsuarios.tsx
-// Tela para gestão de usuários: liberação e exclusão.
-// O gestor visualiza todos os usuários cadastrados e pode alterar o status.
+// Tela para gestão de usuários: liberação, exclusão e edição de perfil.
+// O gestor visualiza todos os usuários cadastrados e pode alterar o status,
+// além de alterar o nível de acesso e cargo do usuário.
 // ====================================================================================================================
 
 import React, { useState, useEffect } from "react";
@@ -15,6 +16,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Picker } from "@react-native-picker/picker";
 
 // Firebase
 import { db } from "../services/firebaseConfig";
@@ -38,6 +40,7 @@ interface Usuario {
   id_usuario: string;
   email: string;
   nivel_acesso: string;
+  cargo?: string;
   status: "pendente" | "autorizado" | "excluído";
 }
 
@@ -52,7 +55,8 @@ export default function TelaCadastroUsuarios({ navigation }: Props) {
         const lista: Usuario[] = [];
         querySnapshot.forEach((docSnap) => {
           const data = docSnap.data() as Usuario;
-          lista.push(data);
+          const { id_usuario, ...dataWithoutId } = data;
+          lista.push({ id_usuario: docSnap.id, ...dataWithoutId });
         });
         setUsuarios(lista);
       } catch (error: any) {
@@ -62,42 +66,94 @@ export default function TelaCadastroUsuarios({ navigation }: Props) {
     carregarUsuarios();
   }, []);
 
-  const atualizarStatus = async (id: string, novoStatus: "pendente" | "autorizado" | "excluído") => {
+  const atualizarUsuario = async (
+    id: string,
+    novoStatus: "pendente" | "autorizado" | "excluído",
+    novoNivel: string,
+    novoCargo: string
+  ) => {
     try {
-      await updateDoc(doc(db, "usuarios", id), { status: novoStatus });
-      Alert.alert("Sucesso", `Usuário atualizado para ${novoStatus}.`);
+      await updateDoc(doc(db, "usuarios", id), {
+        status: novoStatus,
+        nivel_acesso: novoNivel,
+        cargo: novoCargo,
+      });
+      Alert.alert("Sucesso", "Usuário atualizado com sucesso.");
       setUsuarios((prev) =>
-        prev.map((u) => (u.id_usuario === id ? { ...u, status: novoStatus } : u))
+        prev.map((u) =>
+          u.id_usuario === id
+            ? { ...u, status: novoStatus, nivel_acesso: novoNivel, cargo: novoCargo }
+            : u
+        )
       );
     } catch (error: any) {
-      Alert.alert("Erro", "Não foi possível atualizar o status.");
+      Alert.alert("Erro", "Não foi possível atualizar o usuário.");
     }
   };
 
   const renderUsuario = ({ item }: { item: Usuario }) => (
     <View style={styles.card}>
       <Text style={styles.email}>{item.email}</Text>
-      <Text style={styles.info}>Cargo: {item.nivel_acesso}</Text>
+      <Text style={styles.info}>Nível de acesso: {item.nivel_acesso}</Text>
+      <Text style={styles.info}>Cargo: {item.cargo || "Não definido"}</Text>
       <Text style={styles.info}>Status: {item.status}</Text>
 
+      {/* Picker para nível de acesso */}
+      <View style={styles.pickerWrapper}>
+        <Picker
+          selectedValue={item.nivel_acesso}
+          onValueChange={(valor) =>
+            atualizarUsuario(item.id_usuario, item.status, valor, item.cargo || "")
+          }
+          style={styles.picker}
+        >
+          <Picker.Item label="Gestor" value="gestor" />
+          <Picker.Item label="Supervisor" value="supervisor" />
+          <Picker.Item label="Colaborador" value="colaborador" />
+        </Picker>
+      </View>
+
+      {/* Picker para cargo */}
+      <View style={styles.pickerWrapper}>
+        <Picker
+          selectedValue={item.cargo}
+          onValueChange={(valor) =>
+            atualizarUsuario(item.id_usuario, item.status, item.nivel_acesso, valor)
+          }
+          style={styles.picker}
+        >
+          <Picker.Item label="Sênior" value="Sênior" />
+          <Picker.Item label="Pleno" value="Pleno" />
+          <Picker.Item label="Júnior" value="Júnior" />
+          <Picker.Item label="Estagiário" value="Estagiário" />
+        </Picker>
+      </View>
+
+      {/* Botões de status */}
       <View style={styles.actions}>
         <TouchableOpacity
           style={[styles.button, { backgroundColor: "#00849e" }]}
-          onPress={() => atualizarStatus(item.id_usuario, "autorizado")}
+          onPress={() =>
+            atualizarUsuario(item.id_usuario, "autorizado", item.nivel_acesso, item.cargo || "")
+          }
         >
           <Text style={styles.buttonText}>Autorizar</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.button, { backgroundColor: "#ff9800" }]}
-          onPress={() => atualizarStatus(item.id_usuario, "pendente")}
+          onPress={() =>
+            atualizarUsuario(item.id_usuario, "pendente", item.nivel_acesso, item.cargo || "")
+          }
         >
           <Text style={styles.buttonText}>Pendente</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.button, { backgroundColor: "#e53935" }]}
-          onPress={() => atualizarStatus(item.id_usuario, "excluído")}
+          onPress={() =>
+            atualizarUsuario(item.id_usuario, "excluído", item.nivel_acesso, item.cargo || "")
+          }
         >
           <Text style={styles.buttonText}>Excluir</Text>
         </TouchableOpacity>
@@ -134,6 +190,8 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     marginBottom: 15,
+    borderWidth: 1,
+    borderColor: "#fff",
   },
   email: {
     fontSize: 16,
@@ -145,6 +203,14 @@ const styles = StyleSheet.create({
     color: "#86EBFF",
     marginTop: 4,
   },
+  pickerWrapper: {
+    borderWidth: 2,
+    borderColor: "#fff",
+    borderRadius: 6,
+    marginVertical: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+  },
+  picker: { color: "#fff" },
   actions: {
     flexDirection: "row",
     justifyContent: "space-between",
