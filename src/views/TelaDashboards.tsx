@@ -7,7 +7,6 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, Dimensions } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { PieChart } from "react-native-svg-charts";
 
 type RootStackParamList = {
     TelaDashboards: undefined;
@@ -39,20 +38,7 @@ export default function TelaDashboards({ navigation }: Props) {
     });
 
     // Dados para o gráfico circular
-    const chartData = [
-        {
-            key: 'Tempo Gasto',
-            value: metrics.tempoGasto,
-            label: 'Tempo Gasto',
-            svg: { fill: '#FF6B6B' },
-        },
-        {
-            key: 'Tempo Restante',
-            value: metrics.horasOrcadas - metrics.tempoGasto,
-            label: 'Tempo Restante',
-            svg: { fill: '#4ECDC4' },
-        },
-    ];
+    // Removido - usando barra de progresso visual em vez disso
 
     // Percentuais
     const percentualTempo = Math.round((metrics.tempoGasto / metrics.horasOrcadas) * 100);
@@ -76,14 +62,20 @@ export default function TelaDashboards({ navigation }: Props) {
                 {/* Gráfico Circular */}
                 <View style={styles.chartContainer}>
                     <View style={styles.chartWrapper}>
-                        <PieChart
-                            style={{ width: '100%', height: 220 }}
-                            width={Dimensions.get('window').width - 80}
-                            height={220}
-                            data={chartData}
-                            outerRadius={'80%'}
-                            innerRadius={0}
-                        />
+                        {/* Barra de progresso visual */}
+                        <View style={styles.progressContainer}>
+                            <View style={styles.progressBar}>
+                                <View
+                                    style={[
+                                        styles.progressFill,
+                                        { width: `${percentualTempo}%`, backgroundColor: '#FF6B6B' },
+                                    ]}
+                                />
+                            </View>
+                            <Text style={styles.progressText}>
+                                {percentualTempo}% do tempo orçado utilizado
+                            </Text>
+                        </View>
                     </View>
 
                     {/* Legenda e Percentual */}
@@ -216,6 +208,27 @@ const styles = StyleSheet.create({
     chartWrapper: {
         alignItems: 'center',
         marginBottom: 20,
+    },
+    progressContainer: {
+        width: '100%',
+        alignItems: 'center',
+    },
+    progressBar: {
+        width: '100%',
+        height: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        borderRadius: 4,
+        overflow: 'hidden',
+        marginBottom: 12,
+    },
+    progressFill: {
+        height: '100%',
+        borderRadius: 4,
+    },
+    progressText: {
+        fontSize: 14,
+        color: '#B0B0FF',
+        fontWeight: '500',
     },
     chart: {
         height: 220,
