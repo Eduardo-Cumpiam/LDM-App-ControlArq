@@ -71,16 +71,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (userDoc.exists()) {
         const perfilData = userDoc.data() as PerfilUsuario;
-        if (perfilData.status !== "autorizado") {
-          throw new Error("Usuário ainda não autorizado pelo gestor.");
-        }
+        // ✅ Não lança erro para status pendente/excluído
         setPerfil(perfilData);
       } else {
         throw new Error("Perfil não encontrado no banco de dados.");
       }
     } catch (error: any) {
-      console.error("Erro de login:", error.code, error.message);
-      throw new Error("Falha ao realizar login. Verifique suas credenciais.");
+      // ✅ Apenas erros técnicos do Firebase são tratados aqui
+      if (__DEV__) {
+        console.log("Erro de login:", error?.code, error?.message);
+      }
+      const mensagem = error?.message ?? "Falha ao realizar login. Verifique suas credenciais.";
+      throw new Error(mensagem);
     }
   };
 
@@ -103,8 +105,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         status: "pendente",
         data_cadastro: new Date().toISOString(),
       });
-    } catch {
-      throw new Error("Erro ao salvar funcionário no banco de dados.");
+    } catch (error: any) {
+      const mensagem = error?.message ?? "Erro ao salvar funcionário no banco de dados.";
+      throw new Error(mensagem);
     }
   };
 
@@ -113,8 +116,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await signOut(auth);
       setUsuarioLogado(null);
       setPerfil(null);
-    } catch {
-      console.error("Erro ao sair");
+    } catch (error: any) {
+      if (__DEV__) {
+        console.log("Erro ao sair:", error?.message);
+      }
     }
   };
 

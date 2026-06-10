@@ -23,6 +23,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useAuth } from "../context/AuthContext";
+import { Ionicons } from "@expo/vector-icons";
 
 // Firebase Auth
 import { sendPasswordResetEmail } from "firebase/auth";
@@ -47,11 +48,11 @@ type Props = {
 export default function TelaLogin({ navigation }: Props) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [senhaVisivel, setSenhaVisivel] = useState(false);
   const [carregandoInterno, setCarregandoInterno] = useState(false);
 
   const { login, perfil, carregando } = useAuth();
 
-  // ✅ Redirecionamento seguro após perfil ser carregado
   useEffect(() => {
     if (!carregando && perfil) {
       if (perfil.status === "autorizado") {
@@ -77,9 +78,9 @@ export default function TelaLogin({ navigation }: Props) {
     try {
       setCarregandoInterno(true);
       await login(email.trim(), senha);
-      // Navegação agora é feita pelo useEffect quando perfil estiver pronto
     } catch (error: any) {
-      Alert.alert("Erro ao entrar", error.message);
+      const mensagem = error?.message ?? "Falha inesperada no login.";
+      Alert.alert("Erro ao entrar", mensagem);
     } finally {
       setCarregandoInterno(false);
     }
@@ -93,24 +94,15 @@ export default function TelaLogin({ navigation }: Props) {
 
     try {
       await sendPasswordResetEmail(auth, email.trim());
-      Alert.alert(
-        "Email enviado",
-        "Verifique sua caixa de entrada para redefinir a senha."
-      );
+      Alert.alert("Email enviado", "Verifique sua caixa de entrada para redefinir a senha.");
     } catch (error: any) {
       Alert.alert("Erro ao enviar email", error.message);
     }
   };
 
   return (
-    <LinearGradient
-      colors={["#000060", "#3232B5", "#00007D"]}
-      style={styles.container}
-    >
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
+    <LinearGradient colors={["#000060", "#3232B5", "#00007D"]} style={styles.container}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
         <View style={styles.contentWrapper}>
           {/* BLOCO SUPERIOR */}
           <View style={styles.topSection}>
@@ -138,22 +130,28 @@ export default function TelaLogin({ navigation }: Props) {
             />
 
             <Text style={styles.subtitle}>SENHA:</Text>
-            <TextInput
-              style={styles.input}
-              secureTextEntry
-              value={senha}
-              onChangeText={setSenha}
-              autoCapitalize="none"
-              placeholder="******"
-              placeholderTextColor="#999"
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.inputSenha}
+                secureTextEntry={!senhaVisivel}
+                value={senha}
+                onChangeText={setSenha}
+                autoCapitalize="none"
+                placeholder="******"
+                placeholderTextColor="#999"
+              />
+              <Pressable onPress={() => setSenhaVisivel(!senhaVisivel)}>
+                <Ionicons
+                  name={senhaVisivel ? "eye-off" : "eye"}
+                  size={22}
+                  color="#fff"
+                  style={{ marginLeft: 8 }}
+                />
+              </Pressable>
+            </View>
 
             {carregandoInterno ? (
-              <ActivityIndicator
-                size="large"
-                color="#86EBFF"
-                style={{ marginVertical: 10 }}
-              />
+              <ActivityIndicator size="large" color="#86EBFF" style={{ marginVertical: 10 }} />
             ) : (
               <>
                 <View style={styles.buttonContainer}>
@@ -161,30 +159,25 @@ export default function TelaLogin({ navigation }: Props) {
                 </View>
 
                 <View style={styles.buttonContainer}>
-                  <Button
-                    title="Esqueci minha senha"
-                    color="#86EBFF"
-                    onPress={redefinirSenha}
-                  />
+                  <Pressable onPress={redefinirSenha}>
+                    <Text style={styles.linkSenha}>Esqueci minha senha</Text>
+                  </Pressable>
                 </View>
               </>
             )}
-          </View>
+          {/*</View>*/}
 
           {/* BLOCO INFERIOR */}
           <View style={styles.footerSection}>
             <Pressable onPress={() => navigation.navigate("TelaCriarConta")}>
-              <Text style={styles.footerLink}>
-                não possui conta? crie a sua
-              </Text>
+              <Text style={styles.footerLink}>não possui conta? crie a sua</Text>
             </Pressable>
-
-            <Text style={styles.footerText}>
-              All rights reserved. ©ControlARQ 2026
-            </Text>
+            
+          </View>
           </View>
         </View>
       </KeyboardAvoidingView>
+      <Text style={styles.footerText}>All rights reserved. ©ControlARQ 2026</Text>
     </LinearGradient>
   );
 }
@@ -239,6 +232,28 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     paddingHorizontal: 12,
     backgroundColor: "rgba(255, 255, 255, 0.05)",
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderColor: "#fff",
+    borderWidth: 2,
+    borderRadius: 6,
+    marginBottom: 15,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    paddingHorizontal: 12,
+  },
+  inputSenha: {
+    flex: 1,
+    height: 44,
+    color: "#fff",
+  },
+  linkSenha: {
+    fontSize: 15,
+    color: "#FFD700",
+    textAlign: "center",
+    marginTop: 10,
+    fontWeight: "600",
   },
   buttonContainer: {
     borderRadius: 6,

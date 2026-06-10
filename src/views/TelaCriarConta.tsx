@@ -20,6 +20,7 @@ import {
   Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../services/firebaseConfig";
@@ -42,6 +43,7 @@ type Props = {
 export default function TelaCriarConta({ navigation }: Props) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [senhaVisivel, setSenhaVisivel] = useState(false);
   const [nome, setNome] = useState("");
 
   const { cadastrarNovoFuncionario } = useAuth();
@@ -126,36 +128,37 @@ export default function TelaCriarConta({ navigation }: Props) {
             />
 
             <Text style={styles.subtitle}>SENHA:</Text>
-            <TextInput
-              style={styles.input}
-              secureTextEntry
-              value={senha}
-              onChangeText={setSenha}
-              autoCapitalize="none"
-              placeholder="******"
-              placeholderTextColor="#999"
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                secureTextEntry={!senhaVisivel}
+                value={senha}
+                onChangeText={setSenha}
+                autoCapitalize="none"
+                placeholder="Digite sua senha"
+                placeholderTextColor="#999"
+              />
+              <Pressable onPress={() => setSenhaVisivel(!senhaVisivel)}>
+                <Ionicons
+                  name={senhaVisivel ? "eye-off" : "eye"}
+                  size={22}
+                  color="#fff"
+                />
+              </Pressable>
+            </View>
 
             <View style={styles.buttonContainer}>
               <Button title="Criar" color="#00849e" onPress={handleCriarConta} />
             </View>
           </View>
 
-          {/* BLOCO INFERIOR */}
-          <View style={styles.footerSection}>
-            <Pressable onPress={() => navigation.replace("TelaLogin")}>
-              <Text style={styles.footerLink}>
-                já criou sua conta? faça seu login
-              </Text>
-            </Pressable>
-
-            <Text style={styles.copyright}>
-              All rights reserved. ©ControlARQ 2026
-            </Text>
-          </View>
         </KeyboardAvoidingView>
+        {/* BLOCO INFERIOR */}
+        <Text style={styles.copyright}>
+          All rights reserved. ©ControlARQ 2026
+        </Text>
       </SafeAreaView>
-    </LinearGradient>
+    </LinearGradient >
   );
 }
 
@@ -211,10 +214,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: "rgba(255, 255, 255, 0.05)",
   },
+  passwordInput: {
+    flex: 1,
+    height: 44,
+    color: "#fff",
+  },
   buttonContainer: {
     borderRadius: 6,
     overflow: "hidden",
     marginTop: 10,
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderColor: "#fff",
+    borderWidth: 2,
+    borderRadius: 6,
+    marginBottom: 15,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    paddingHorizontal: 12,
   },
   footerLink: {
     fontSize: 15,
