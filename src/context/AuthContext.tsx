@@ -4,12 +4,7 @@
 //===========================================================================================
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import {
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  User,
-} from "firebase/auth";
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from "firebase/auth";
 import { auth, db } from "../services/firebaseConfig";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
@@ -42,6 +37,7 @@ interface AuthContextData {
 export const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+
   const [usuarioLogado, setUsuarioLogado] = useState<User | null>(null);
   const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
   const [carregando, setCarregando] = useState(true);
