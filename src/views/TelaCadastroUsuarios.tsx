@@ -5,15 +5,7 @@
 // ====================================================================================================================
 
 import React, { useState, useEffect } from "react";
-import {
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  View,
-  Alert,
-  FlatList,
-  TouchableOpacity,
-} from "react-native";
+import { Text, StyleSheet, SafeAreaView, View, Alert, FlatList, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Picker } from "@react-native-picker/picker";
@@ -45,6 +37,7 @@ interface Usuario {
 }
 
 export default function TelaCadastroUsuarios({ navigation }: Props) {
+  
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
 
   // Carregar lista de usuários
@@ -175,6 +168,7 @@ export default function TelaCadastroUsuarios({ navigation }: Props) {
     </LinearGradient>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: { flex: 1 },

@@ -29,6 +29,7 @@ interface DashboardMetrics {
 }
 
 export default function TelaDashboards({ navigation }: Props) {
+    
     // Dados mock - Balanço Mensal
     const [metrics] = useState<DashboardMetrics>({
         horasOrcadas: 160,      // horas totais orçadas
@@ -173,6 +174,7 @@ function SummaryRow({ label, value, color }: { label: string; value: string; col
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {

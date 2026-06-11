@@ -26,6 +26,7 @@ interface Projeto {
 }
 
 export default function TelaProjetos() {
+  
   const navigation = useNavigation<any>();
   const [projetos, setProjetos] = useState<Projeto[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -137,6 +138,7 @@ export default function TelaProjetos() {
     </LinearGradient>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

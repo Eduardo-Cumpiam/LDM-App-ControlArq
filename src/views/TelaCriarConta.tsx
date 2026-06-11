@@ -6,19 +6,7 @@
 //=====================================================================================================================
 
 import React, { useState } from "react";
-import {
-  Text,
-  Button,
-  TextInput,
-  Image,
-  Pressable,
-  StyleSheet,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  View,
-  Alert,
-} from "react-native";
+import { Text, Button, TextInput, Image, Pressable, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, View, Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -41,6 +29,7 @@ type Props = {
 };
 
 export default function TelaCriarConta({ navigation }: Props) {
+  
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [senhaVisivel, setSenhaVisivel] = useState(false);
@@ -162,8 +151,11 @@ export default function TelaCriarConta({ navigation }: Props) {
   );
 }
 
+
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { 
+    flex: 1 
+  },
   contentWrapper: {
     flex: 1,
     paddingHorizontal: 25,

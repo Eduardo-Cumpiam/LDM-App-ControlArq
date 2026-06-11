@@ -20,6 +20,7 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, "TelaLancamentoHoras">;
 
 export default function TelaLancamentoHoras({ route, navigation }: Props) {
+  
   const { projetoId, projetoNome } = route.params;
   const { usuarioLogado } = useAuth();
 
@@ -132,10 +133,23 @@ export default function TelaLancamentoHoras({ route, navigation }: Props) {
   );
 }
 
+
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#000060" },
-  title: { color: "#fff", fontSize: 18, marginBottom: 20 },
-  label: { color: "#fff", marginTop: 15, marginBottom: 5 },
+  container: { 
+    flex: 1, 
+    padding: 20, 
+    backgroundColor: "#000060" 
+  },
+  title: { 
+    color: "#fff", 
+    fontSize: 18, 
+    marginBottom: 20 
+  },
+  label: { 
+    color: "#fff", 
+    marginTop: 15, 
+    marginBottom: 5 
+  },
   input: {
     backgroundColor: "#fff",
     marginBottom: 15,

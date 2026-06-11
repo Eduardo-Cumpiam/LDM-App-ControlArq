@@ -7,22 +7,13 @@
 //===================================================================================
 
 import React, { useState } from "react";
-import {
-  Text,
-  TextInput,
-  Button,
-  StyleSheet,
-  Alert,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  View,
-} from "react-native";
+import { Text, TextInput, Button, StyleSheet, Alert, SafeAreaView, KeyboardAvoidingView, Platform, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { db } from "../services/firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 
 export default function TelaCadastroEtapa() {
+  
   const [nomeEtapa, setNomeEtapa] = useState("");
   const [carregando, setCarregando] = useState(false);
 
@@ -83,15 +74,50 @@ export default function TelaCadastroEtapa() {
   );
 }
 
+
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  contentWrapper: { flex: 1, paddingHorizontal: 25, justifyContent: "space-between", paddingVertical: 10 },
-  headerSection: { alignItems: "center", flex: 0.5, justifyContent: "center" },
-  formSection: { width: "100%", flex: 4, justifyContent: "center" },
-  footerSection: { alignItems: "center", justifyContent: "flex-end", paddingBottom: 5 },
-  title: { fontSize: 24, color: "#fff", fontWeight: "bold", textAlign: "center", marginBottom: 3 },
-  description: { fontSize: 13, color: "#86EBFF", textAlign: "center" },
-  label: { fontSize: 13, color: "#fff", marginBottom: 4, fontWeight: "500" },
+  container: { 
+    flex: 1 
+  },
+  contentWrapper: { 
+    flex: 1, 
+    paddingHorizontal: 25, 
+    justifyContent: "space-between", 
+    paddingVertical: 10 
+  },
+  headerSection: { 
+    alignItems: "center", 
+    flex: 0.5, 
+    justifyContent: "center" 
+  },
+  formSection: { 
+    width: "100%", 
+    flex: 4, 
+    justifyContent: "center" 
+  },
+  footerSection: { 
+    alignItems: "center", 
+    justifyContent: "flex-end", 
+    paddingBottom: 5 
+  },
+  title: { 
+    fontSize: 24, 
+    color: "#fff", 
+    fontWeight: "bold", 
+    textAlign: "center", 
+    marginBottom: 3 
+  },
+  description: { 
+    fontSize: 13, 
+    color: "#86EBFF", 
+    textAlign: "center" 
+  },
+  label: { 
+    fontSize: 13, 
+    color: "#fff", 
+    marginBottom: 4, 
+    fontWeight: "500" 
+  },
   input: {
     height: 42,
     borderColor: "#fff",
@@ -103,6 +129,14 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.05)",
     justifyContent: "center",
   },
-  buttonContainer: { borderRadius: 6, overflow: "hidden", marginTop: 5 },
-  footerText: { fontSize: 11, color: "#86EBFF", opacity: 0.5 },
+  buttonContainer: { 
+    borderRadius: 6, 
+    overflow: "hidden", 
+    marginTop: 5 
+  },
+  footerText: { 
+    fontSize: 11, 
+    color: "#86EBFF", 
+    opacity: 0.5 
+  },
 });

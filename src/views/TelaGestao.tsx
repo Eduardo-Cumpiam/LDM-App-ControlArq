@@ -73,6 +73,7 @@ export default function TelaGestao({ navigation }: Props) {
   );
 }
 
+
 const styles = StyleSheet.create({
   container: { flex: 1 },
   contentWrapper: {

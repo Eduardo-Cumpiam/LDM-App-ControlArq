@@ -123,8 +123,6 @@ export default function TelaLogin({ navigation }: Props) {
 }
 
 
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

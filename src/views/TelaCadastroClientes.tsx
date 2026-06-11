@@ -4,23 +4,14 @@
 //===================================================================================================================
 
 import React, { useState } from "react";
-import {
-  Text,
-  TextInput,
-  Button,
-  StyleSheet,
-  Alert,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  View,
-} from "react-native";
+import { Text, TextInput, Button, StyleSheet, Alert, SafeAreaView, KeyboardAvoidingView, Platform, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { db } from "../services/firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 import { Picker } from "@react-native-picker/picker";
 
 export default function TelaCadastroClientes() {
+  
   const [nome, setNome] = useState("");
   const [tipoPessoa, setTipoPessoa] = useState<"fisica" | "juridica" | "">("");
   const [cpf, setCpf] = useState("");
@@ -153,15 +144,50 @@ export default function TelaCadastroClientes() {
   );
 }
 
+
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  contentWrapper: { flex: 1, paddingHorizontal: 25, justifyContent: "space-between", paddingVertical: 10 },
-  headerSection: { alignItems: "center", flex: 0.5, justifyContent: "center" },
-  formSection: { width: "100%", flex: 4, justifyContent: "center" },
-  footerSection: { alignItems: "center", justifyContent: "flex-end", paddingBottom: 5 },
-  title: { fontSize: 24, color: "#fff", fontWeight: "bold", textAlign: "center", marginBottom: 3 },
-  description: { fontSize: 13, color: "#86EBFF", textAlign: "center" },
-  label: { fontSize: 13, color: "#fff", marginBottom: 4, fontWeight: "500" },
+  container: { 
+    flex: 1 
+  },
+  contentWrapper: { 
+    flex: 1, 
+    paddingHorizontal: 25, 
+    justifyContent: "space-between", 
+    paddingVertical: 10 
+  },
+  headerSection: { 
+    alignItems: "center", 
+    flex: 0.5, 
+    justifyContent: "center" 
+  },
+  formSection: { 
+    width: "100%", 
+    flex: 4, 
+    justifyContent: "center" 
+  },
+  footerSection: { 
+    alignItems: "center", 
+    justifyContent: "flex-end", 
+    paddingBottom: 5 
+  },
+  title: { 
+    fontSize: 24, 
+    color: "#fff", 
+    fontWeight: "bold", 
+    textAlign: "center", 
+    marginBottom: 3 
+  },
+  description: { 
+    fontSize: 13, 
+    color: "#86EBFF", 
+    textAlign: "center" 
+  },
+  label: { 
+    fontSize: 13, 
+    color: "#fff", 
+    marginBottom: 4, 
+    fontWeight: "500" 
+  },
   input: {
     height: 42,
     borderColor: "#fff",
@@ -180,7 +206,17 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     backgroundColor: "rgba(255, 255, 255, 0.05)",
   },
-  picker: { color: "#fff" },
-  buttonContainer: { borderRadius: 6, overflow: "hidden", marginTop: 5 },
-  footerText: { fontSize: 11, color: "#86EBFF", opacity: 0.5 },
+  picker: { 
+    color: "#fff" 
+  },
+  buttonContainer: { 
+    borderRadius: 6, 
+    overflow: "hidden", 
+    marginTop: 5 
+  },
+  footerText: { 
+    fontSize: 11, 
+    color: "#86EBFF", 
+    opacity: 0.5 
+  },
 });

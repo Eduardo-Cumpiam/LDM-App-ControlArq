@@ -53,8 +53,6 @@ export default function TelaInicial({ navigation }: Props) {
 }
 
 
-
-
 const styles = StyleSheet.create({
   container: {
     padding: 30,

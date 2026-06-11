@@ -67,6 +67,7 @@ export default function TelaGestorInicial({ navigation }: Props) {
   );
 }
 
+
 const styles = StyleSheet.create({
   container: { flex: 1 },
   contentWrapper: {

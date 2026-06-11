@@ -46,6 +46,7 @@ type Props = {
 };
 
 export default function TelaLogin({ navigation }: Props) {
+  
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [senhaVisivel, setSenhaVisivel] = useState(false);
@@ -181,6 +182,7 @@ export default function TelaLogin({ navigation }: Props) {
     </LinearGradient>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
