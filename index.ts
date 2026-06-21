@@ -1,4 +1,4 @@
-//index.ts
+// index.ts
 // Arquivo de entrada para o aplicativo Expo
 // Ele registra o componente raiz do aplicativo, que é definido em App.tsx, garantindo que o ambiente esteja configurado corretamente para rodar tanto no Expo Go quanto em builds nativas.
 //===================================================================================================================

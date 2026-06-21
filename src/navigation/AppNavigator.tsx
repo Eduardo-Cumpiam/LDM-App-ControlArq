@@ -11,7 +11,6 @@ import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
 
 // Telas
 import TelaLogin from "../views/TelaLogin";
@@ -25,15 +24,35 @@ import TelaCadastroUsuarios from "../views/TelaCadastroUsuarios";
 import TelaCadastroClientes from "../views/TelaCadastroClientes";
 import TelaCadastroProjetos from "../views/TelaCadastroProjetos";
 import TelaCadastroEtapas from "../views/TelaCadastroEtapas";
+import TelaGestaoEtapas from "../views/TelaGestaoEtapas";
 import TelaLancamentoHoras from "../views/TelaLancamentoHoras";
+import TelaLancamentoFinancas from "../views/TelaLancamentoFinancas"; // ✅ Importada a nova tela financeira
 
 // Contexto
 import { AuthProvider, useAuth } from "../context/AuthContext";
 
-const Stack = createNativeStackNavigator();
+// Tipagem das rotas
+export type RootStackParamList = {
+  TelaLogin: undefined;
+  TelaCriarConta: undefined;
+  TelaGestorInicial: undefined;
+  TelaGestao: undefined;
+  TelaCadastroUsuarios: undefined;
+  TelaCadastroClientes: undefined;
+  TelaCadastroProjetos: undefined;
+  TelaCadastroEtapas: undefined;
+  TelaGestaoEtapas: undefined;
+  TelaProjetos: undefined;
+  TelaLancamentoHoras: { projetoId: string; projetoNome: string };
+  TelaLancamentoFinancas: undefined; // ✅ Adicionada a nova rota de finanças na tipagem
+  TelaDashboards: undefined;
+  TelaInicial: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function NavigatorInterno() {
-  const { usuarioLogado, perfil, logout } = useAuth();
+  const { usuarioLogado, perfil } = useAuth();
 
   // Não logado → TelaLogin + TelaCriarConta
   if (!usuarioLogado) {
@@ -84,26 +103,78 @@ function NavigatorInterno() {
           name="TelaGestorInicial"
           component={TelaGestorInicial}
           options={{
-            title: "Área do Gestor",
-            headerRight: () => (
-              <Ionicons
-                name="log-out-outline"
-                size={24}
-                color="#00849e"
-                style={{ marginRight: 10 }}
-                onPress={logout}
-              />
-            ),
+            headerShown: false,
           }}
         />
-        <Stack.Screen name="TelaGestao" component={TelaGestao} />
-        <Stack.Screen name="TelaCadastroUsuarios" component={TelaCadastroUsuarios} />
-        <Stack.Screen name="TelaCadastroClientes" component={TelaCadastroClientes} />
-        <Stack.Screen name="TelaCadastroProjetos" component={TelaCadastroProjetos} />
-        <Stack.Screen name="TelaCadastroEtapas" component={TelaCadastroEtapas} />
-        <Stack.Screen name="TelaProjetos" component={TelaProjetos} />
-        <Stack.Screen name="TelaLancamentoHoras" component={TelaLancamentoHoras} />
-        <Stack.Screen name="TelaDashboards" component={TelaDashboards} />
+        <Stack.Screen
+          name="TelaGestao"
+          component={TelaGestao}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="TelaCadastroUsuarios"
+          component={TelaCadastroUsuarios}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="TelaCadastroClientes"
+          component={TelaCadastroClientes}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="TelaCadastroProjetos"
+          component={TelaCadastroProjetos}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="TelaCadastroEtapas"
+          component={TelaCadastroEtapas}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="TelaGestaoEtapas"
+          component={TelaGestaoEtapas}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="TelaProjetos"
+          component={TelaProjetos}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="TelaLancamentoHoras"
+          component={TelaLancamentoHoras}
+          options={{
+            headerShown: false,
+          }}
+        />
+        {/* ✅ Nova Screen inserida de forma restrita apenas no bloco do Gestor */}
+        <Stack.Screen
+          name="TelaLancamentoFinancas"
+          component={TelaLancamentoFinancas}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="TelaDashboards"
+          component={TelaDashboards}
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack.Navigator>
     );
   }
@@ -124,9 +195,27 @@ function NavigatorInterno() {
         component={TelaInicial}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="TelaProjetos" component={TelaProjetos} />
-      <Stack.Screen name="TelaDashboards" component={TelaDashboards} />
-      <Stack.Screen name="TelaLancamentoHoras" component={TelaLancamentoHoras} />
+      <Stack.Screen
+        name="TelaProjetos"
+        component={TelaProjetos}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="TelaDashboards"
+        component={TelaDashboards}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="TelaLancamentoHoras"
+        component={TelaLancamentoHoras}
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack.Navigator>
   );
 }

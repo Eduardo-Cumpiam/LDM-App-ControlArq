@@ -1,8 +1,7 @@
 // TelaCriarConta.tsx
-// Tela de Criação de Conta alinhada ao fluxo de cadastro inicial sempre pendente.
+// Tela de Criação de Conta alinhada ao fluxo de cadastro inicial sempre pendente com inclusão de telefone.
 // Utiliza o AuthContext para registrar o usuário no Firebase Auth e salvar o perfil no Firestore.
 // Esta tela é a primeira que o usuário vê ao abrir o aplicativo pela primeira vez
-// Ela é projetada para ser simples, intuitiva e responsiva, utilizando Flexbox para garantir que os elementos se ajustem bem em diferentes tamanhos de tela
 //=====================================================================================================================
 
 import React, { useState } from "react";
@@ -13,14 +12,16 @@ import {
   Image,
   Pressable,
   StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   View,
   Alert,
+  ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
+import AppCopyrigth from "../components/AppCopyrigth";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../services/firebaseConfig";
@@ -45,11 +46,12 @@ export default function TelaCriarConta({ navigation }: Props) {
   const [senha, setSenha] = useState("");
   const [senhaVisivel, setSenhaVisivel] = useState(false);
   const [nome, setNome] = useState("");
+  const [telefone, setTelefone] = useState("");
 
   const { cadastrarNovoFuncionario } = useAuth();
 
   const handleCriarConta = async () => {
-    if (!email || !senha || !nome) {
+    if (!email || !senha || !nome || !telefone) {
       Alert.alert("Atenção", "Preencha todos os campos.");
       return;
     }
@@ -63,14 +65,14 @@ export default function TelaCriarConta({ navigation }: Props) {
       );
       const user = userCredential.user;
 
-      // Salva perfil no Firestore com status pendente
+      // ✅ Sincronizado estritamente com a assinatura do AuthContext atualizado
       await cadastrarNovoFuncionario(
         user.uid,
         nome,
         email.trim(),
-        "colaborador", // padrão inicial
-        "Júnior",      // padrão inicial
-        0              // valor hora inicial
+        "colaborador",   // nível_acesso inicial
+        0,               // valorHora inicial (número)
+        telefone.trim()  // telefone (string)
       );
 
       Alert.alert(
@@ -84,81 +86,92 @@ export default function TelaCriarConta({ navigation }: Props) {
   };
 
   return (
-    <LinearGradient
-      colors={["#000060", "#3232B5", "#00007D"]}
-      style={styles.container}
-    >
-      <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }}>
+      <LinearGradient colors={["#000060", "#3232B5", "#00007D"]} style={styles.container}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.contentWrapper}
         >
-          {/* BLOCO SUPERIOR */}
-          <View style={styles.topSection}>
-            <Text style={styles.title}>
-              Crie a sua conta para desfrutar das melhores possibilidades de gerenciamento.
-            </Text>
-            <Image
-              source={require("../../assets/croqui.png")}
-              style={styles.imageCroqui}
-              resizeMode="contain"
-            />
-          </View>
+          <ScrollView 
+            contentContainerStyle={{ flexGrow: 1, justifyContent: "space-between" }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {/* BLOCO SUPERIOR */}
+            <View style={styles.topSection}>
+              <Text style={styles.title}>
+                Crie a sua conta para desfrutar das melhores possibilidades de gerenciamento.
+              </Text>
+              <Image
+                source={require("../../assets/croqui.png")}
+                style={styles.imageCroqui}
+                resizeMode="contain"
+              />
+            </View>
 
-          {/* BLOCO CENTRAL */}
-          <View style={styles.formSection}>
-            <Text style={styles.subtitle}>NOME:</Text>
-            <TextInput
-              style={styles.input}
-              value={nome}
-              onChangeText={setNome}
-              placeholder="Seu nome completo"
-              placeholderTextColor="#999"
-            />
-
-            <Text style={styles.subtitle}>E-MAIL:</Text>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              placeholder="seu-email@provedor.com"
-              placeholderTextColor="#999"
-            />
-
-            <Text style={styles.subtitle}>SENHA:</Text>
-            <View style={styles.passwordContainer}>
+            {/* BLOCO CENTRAL */}
+            <View style={styles.formSection}>
+              <Text style={styles.subtitle}>NOME:</Text>
               <TextInput
-                style={styles.passwordInput}
-                secureTextEntry={!senhaVisivel}
-                value={senha}
-                onChangeText={setSenha}
-                autoCapitalize="none"
-                placeholder="Digite sua senha"
+                style={styles.input}
+                value={nome}
+                onChangeText={setNome}
+                placeholder="Seu nome completo"
                 placeholderTextColor="#999"
               />
-              <Pressable onPress={() => setSenhaVisivel(!senhaVisivel)}>
-                <Ionicons
-                  name={senhaVisivel ? "eye-off" : "eye"}
-                  size={22}
-                  color="#fff"
+
+              {/* Campo: TELEFONE */}
+              <Text style={styles.subtitle}>TELEFONE / WHATSAPP:</Text>
+              <TextInput
+                style={styles.input}
+                value={telefone}
+                onChangeText={setTelefone}
+                keyboardType="phone-pad"
+                placeholder="Ex: 14999999999"
+                placeholderTextColor="#999"
+              />
+
+              <Text style={styles.subtitle}>E-MAIL:</Text>
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholder="seu-email@provedor.com"
+                placeholderTextColor="#999"
+              />
+
+              <Text style={styles.subtitle}>SENHA:</Text>
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  secureTextEntry={!senhaVisivel}
+                  value={senha}
+                  onChangeText={setSenha}
+                  autoCapitalize="none"
+                  placeholder="Digite sua senha"
+                  placeholderTextColor="#999"
                 />
-              </Pressable>
+                <Pressable onPress={() => setSenhaVisivel(!senhaVisivel)}>
+                  <Ionicons
+                    name={senhaVisivel ? "eye-off" : "eye"}
+                    size={22}
+                    color="#fff"
+                  />
+                </Pressable>
+              </View>
+
+              <View style={styles.buttonContainer}>
+                <Button title="Criar" color="#00849e" onPress={handleCriarConta} />
+              </View>
             </View>
 
-            <View style={styles.buttonContainer}>
-              <Button title="Criar" color="#00849e" onPress={handleCriarConta} />
-            </View>
-          </View>
-
+          </ScrollView>
+          <AppCopyrigth />
         </KeyboardAvoidingView>
-        {/* BLOCO INFERIOR */}
-        <Text style={styles.copyright}>
-          All rights reserved. ©ControlARQ 2026
-        </Text>
-      </SafeAreaView>
-    </LinearGradient >
+      </LinearGradient>
+    </SafeAreaView>
   );
 }
 
@@ -167,39 +180,32 @@ const styles = StyleSheet.create({
   contentWrapper: {
     flex: 1,
     paddingHorizontal: 25,
-    justifyContent: "space-between",
-    paddingVertical: 20,
+    paddingVertical: 15,
   },
   topSection: {
     alignItems: "center",
-    flex: 1.3,
-    justifyContent: "center",
+    marginTop: 10,
+    marginBottom: 15,
   },
   formSection: {
     width: "100%",
     justifyContent: "center",
-    flex: 1.5,
-  },
-  footerSection: {
-    alignItems: "center",
-    justifyContent: "flex-end",
-    paddingBottom: 10,
+    marginBottom: 20,
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     color: "#fff",
     textAlign: "center",
-    marginBottom: 15,
+    marginBottom: 12,
     fontWeight: "600",
   },
   imageCroqui: {
     width: "85%",
-    height: "45%",
-    maxHeight: 130,
+    height: 110,
     alignSelf: "center",
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#fff",
     marginBottom: 5,
     fontWeight: "500",
@@ -208,7 +214,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderColor: "#fff",
     borderWidth: 2,
-    marginBottom: 15,
+    marginBottom: 14,
     color: "#fff",
     borderRadius: 6,
     paddingHorizontal: 12,
@@ -222,7 +228,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     borderRadius: 6,
     overflow: "hidden",
-    marginTop: 10,
+    marginTop: 5,
   },
   passwordContainer: {
     flexDirection: "row",
@@ -233,18 +239,5 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     backgroundColor: "rgba(255, 255, 255, 0.05)",
     paddingHorizontal: 12,
-  },
-  footerLink: {
-    fontSize: 15,
-    color: "#86EBFF",
-    textAlign: "center",
-    marginBottom: 15,
-    textDecorationLine: "underline",
-  },
-  copyright: {
-    fontSize: 11,
-    color: "#86EBFF",
-    textAlign: "center",
-    opacity: 0.6,
   },
 });

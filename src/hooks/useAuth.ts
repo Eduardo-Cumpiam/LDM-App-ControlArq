@@ -1,4 +1,5 @@
 // src/hooks/useAuth.ts
+// Arquivo de hook para acesso ao contexto de autenticação
 // Hook customizado para facilitar e encurtar o acesso ao contexto nas Views
 //========================================================================
 

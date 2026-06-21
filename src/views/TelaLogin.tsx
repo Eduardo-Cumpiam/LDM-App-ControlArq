@@ -7,12 +7,14 @@
 // ====================================================================================================================
 
 import React, { useState, useEffect } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   Text,
   Button,
   TextInput,
   Image,
   Pressable,
+  ScrollView,
   StyleSheet,
   Alert,
   ActivityIndicator,
@@ -24,6 +26,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useAuth } from "../context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
+import AppCopyrigth from "../components/AppCopyrigth";
 
 // Firebase Auth
 import { sendPasswordResetEmail } from "firebase/auth";
@@ -101,84 +104,99 @@ export default function TelaLogin({ navigation }: Props) {
   };
 
   return (
-    <LinearGradient colors={["#000060", "#3232B5", "#00007D"]} style={styles.container}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-        <View style={styles.contentWrapper}>
-          {/* BLOCO SUPERIOR */}
-          <View style={styles.topSection}>
-            <Text style={styles.title}>
-              Controle para seus projetos de arquitetura na palma da sua mão.
-            </Text>
-            <Image
-              source={require("../../assets/croqui.png")}
-              style={styles.imageCroqui}
-              resizeMode="contain"
-            />
-          </View>
+    <SafeAreaView style={{ flex: 1 }}>
+      <LinearGradient colors={["#000060", "#3232B5", "#00007D"]} style={styles.container}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "padding"}
+        >
 
-          {/* BLOCO CENTRAL */}
-          <View style={styles.formSection}>
-            <Text style={styles.subtitle}>E-MAIL:</Text>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              placeholder="seu-email@provedor.com"
-              placeholderTextColor="#999"
-            />
-
-            <Text style={styles.subtitle}>SENHA:</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={styles.inputSenha}
-                secureTextEntry={!senhaVisivel}
-                value={senha}
-                onChangeText={setSenha}
-                autoCapitalize="none"
-                placeholder="******"
-                placeholderTextColor="#999"
-              />
-              <Pressable onPress={() => setSenhaVisivel(!senhaVisivel)}>
-                <Ionicons
-                  name={senhaVisivel ? "eye-off" : "eye"}
-                  size={22}
-                  color="#fff"
-                  style={{ marginLeft: 8 }}
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.contentWrapper}>
+              {/* BLOCO SUPERIOR */}
+              <View style={styles.topSection}>
+                <Text style={styles.title}>ControlArq</Text>
+                <Text style={styles.title2}>
+                  Controle para seus projetos de arquitetura na palma da sua mão.
+                </Text>
+                <Image
+                  source={require("../../assets/croqui4.png")}
+                  style={styles.imageCroqui}
+                  resizeMode="contain"
                 />
-              </Pressable>
-            </View>
+              </View>
 
-            {carregandoInterno ? (
-              <ActivityIndicator size="large" color="#86EBFF" style={{ marginVertical: 10 }} />
-            ) : (
-              <>
-                <View style={styles.buttonContainer}>
-                  <Button title="Entrar" color="#00849e" onPress={handleLogin} />
-                </View>
+              {/* BLOCO CENTRAL */}
+              <View style={styles.formSection}>
+                <Text style={styles.subtitle}>E-MAIL:</Text>
+                <TextInput
+                  style={styles.input}
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  placeholder="seu-email@provedor.com"
+                  placeholderTextColor="#999"
+                />
 
-                <View style={styles.buttonContainer}>
-                  <Pressable onPress={redefinirSenha}>
-                    <Text style={styles.linkSenha}>Esqueci minha senha</Text>
+                <Text style={styles.subtitle}>SENHA:</Text>
+                <View style={styles.passwordContainer}>
+                  <TextInput
+                    style={styles.inputSenha}
+                    secureTextEntry={!senhaVisivel}
+                    value={senha}
+                    onChangeText={setSenha}
+                    autoCapitalize="none"
+                    placeholder="******"
+                    placeholderTextColor="#999"
+                  />
+                  <Pressable onPress={() => setSenhaVisivel(!senhaVisivel)}>
+                    <Ionicons
+                      name={senhaVisivel ? "eye-off" : "eye"}
+                      size={22}
+                      color="#fff"
+                      style={{ marginLeft: 8 }}
+                    />
                   </Pressable>
                 </View>
-              </>
-            )}
-          {/*</View>*/}
 
-          {/* BLOCO INFERIOR */}
-          <View style={styles.footerSection}>
-            <Pressable onPress={() => navigation.navigate("TelaCriarConta")}>
-              <Text style={styles.footerLink}>não possui conta? crie a sua</Text>
-            </Pressable>
-            
-          </View>
-          </View>
-        </View>
-      </KeyboardAvoidingView>
-      <Text style={styles.footerText}>All rights reserved. ©ControlARQ 2026</Text>
-    </LinearGradient>
+                {carregandoInterno ? (
+                  <ActivityIndicator size="large" color="#86EBFF" style={{ marginVertical: 10 }} />
+                ) : (
+                  <>
+                    <View style={styles.buttonContainer}>
+                      <Button title="Entrar" color="#00849e" onPress={handleLogin} />
+                    </View>
+
+                    <View style={styles.buttonContainer}>
+                      <Pressable onPress={redefinirSenha}>
+                        <Text style={styles.linkSenha}>Esqueci minha senha</Text>
+                      </Pressable>
+                    </View>
+                  </>
+                )}
+                {/*</View>*/}
+
+                {/* BLOCO INFERIOR */}
+                <View style={styles.footerSection}>
+                  <Pressable onPress={() => navigation.navigate("TelaCriarConta")}>
+                    <Text style={styles.footerLink}>Não possui conta? {"\n"}
+                      Crie a sua <Text style={styles.linkDestaque}>clicando aqui </Text>
+                      e solicite liberação ao seu gestor.</Text>
+                  </Pressable>
+
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+
+        <AppCopyrigth />
+      </LinearGradient>
+    </SafeAreaView>
   );
 }
 
@@ -187,7 +205,7 @@ const styles = StyleSheet.create({
   contentWrapper: {
     flex: 1,
     paddingHorizontal: 25,
-    justifyContent: "space-between",
+    //    justifyContent: "space-between",
     paddingVertical: 20,
   },
   topSection: {
@@ -197,13 +215,13 @@ const styles = StyleSheet.create({
   },
   formSection: {
     width: "100%",
+    marginTop: 20,
     justifyContent: "center",
     flex: 1.5,
   },
   footerSection: {
     alignItems: "center",
     justifyContent: "flex-end",
-    paddingBottom: 10,
   },
   title: {
     fontSize: 25,
@@ -211,11 +229,22 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 15,
     fontWeight: "600",
-    marginTop: 100,
+    //marginTop: 20,
+  },
+  title2: {
+    paddingTop: 20,
+    fontSize: 18,
+    color: "#fff",
+    textAlign: "center",
+    marginBottom: 15,
+    fontWeight: "600",
+    //marginTop: 20,
   },
   imageCroqui: {
-    width: "200%",
-    maxHeight: 200,
+    width: "100%",
+    height: 150,
+    borderRadius: 10,
+    opacity: 0.7,
   },
   subtitle: {
     fontSize: 16,
@@ -256,21 +285,25 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   buttonContainer: {
+    width: "60%",
+    height: 45,
+    alignSelf: "center",
     borderRadius: 6,
     overflow: "hidden",
-    marginTop: 10,
+    marginTop: 5,
+    paddingBottom: 5,
   },
-  footerLink: {
-    fontSize: 15,
-    color: "#86EBFF",
-    textAlign: "center",
-    marginBottom: 15,
+  linkDestaque: {
+    color: "#FFD700",
+    fontWeight: "bold",
     textDecorationLine: "underline",
   },
-  footerText: {
-    fontSize: 11,
-    color: "#86EBFF",
+  footerLink: {
+    paddingTop: 10,
+    fontSize: 15,
+    color: "#f5f2f2",
     textAlign: "center",
-    opacity: 0.6,
+    marginBottom: 15,
+    textDecorationLine: "none",
   },
 });

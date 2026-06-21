@@ -3,14 +3,17 @@
 // Esta tela pode ser acessada a partir do menu lateral ou de outras telas
 //===============================================================
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView, Dimensions } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-
-type RootStackParamList = {
-    TelaDashboards: undefined;
-};
+import { useFocusEffect } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "../context/AuthContext";
+import { useBackHandlerLogout } from "../hooks/useBackHandlerLogout";
+import AppHeader from "../components/AppHeader";
+import AppCopyrigth from "../components/AppCopyrigth";
+import { RootStackParamList } from "../navigation/AppNavigator";
 
 type TelaDashboardsNavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -29,6 +32,27 @@ interface DashboardMetrics {
 }
 
 export default function TelaDashboards({ navigation }: Props) {
+    const { usuarioLogado, perfil, logout } = useAuth();
+
+    // ✅ Hook para logout ao pressionar o botão de voltar
+    useBackHandlerLogout();
+
+    // ✅ Verifica se o usuário ainda está logado quando a tela ganha foco
+    useFocusEffect(
+        useCallback(() => {
+            if (!usuarioLogado) {
+                // O NavigatorInterno vai renderizar o stack de login automaticamente
+                console.log('Usuário não está logado');
+            }
+        }, [usuarioLogado])
+    );
+
+    const handleLogout = async () => {
+        await logout();
+        // ⚠️ NÃO navegue para TelaLogin
+        // O NavigatorInterno vai renderizar o stack de login automaticamente
+    };
+
     // Dados mock - Balanço Mensal
     const [metrics] = useState<DashboardMetrics>({
         horasOrcadas: 160,      // horas totais orçadas
@@ -37,129 +61,139 @@ export default function TelaDashboards({ navigation }: Props) {
         orcamentoTotal: 8000,   // orçamento total em R$
     });
 
-    // Dados para o gráfico circular
-    // Removido - usando barra de progresso visual em vez disso
-
     // Percentuais
     const percentualTempo = Math.round((metrics.tempoGasto / metrics.horasOrcadas) * 100);
     const percentualCusto = Math.round((metrics.custoAtual / metrics.orcamentoTotal) * 100);
 
     return (
-        <LinearGradient
-            colors={['#000060', '#3232B5', '#00007D']}
-            style={styles.container}
-        >
-            <ScrollView
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
+        <SafeAreaView style={{ flex: 1 }}>
+            <LinearGradient
+                colors={['#000060', '#3232B5', '#00007D']}
+                style={styles.container}
             >
-                {/* Cabeçalho */}
-                <View style={styles.header}>
-                    <Text style={styles.title}>Dashboard Mensal</Text>
-                    <Text style={styles.subtitle}>Balanço de Projetos</Text>
-                </View>
+                <AppHeader
+                    nomeUsuario={perfil?.nome}
+                    onLogout={handleLogout}
+                    mostrarVoltar={true}
+                    onVoltar={() => {
+                        navigation.goBack();
+                    }}
+                />
 
-                {/* Gráfico Circular */}
-                <View style={styles.chartContainer}>
-                    <View style={styles.chartWrapper}>
-                        {/* Barra de progresso visual */}
-                        <View style={styles.progressContainer}>
-                            <View style={styles.progressBar}>
+                <ScrollView
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {/* Cabeçalho */}
+                    <View style={styles.header}>
+                        <Text style={styles.title}>Dashboard Mensal</Text>
+                        <Text style={styles.subtitle}>Balanço de Projetos</Text>
+                    </View>
+
+                    {/* Gráfico Circular */}
+                    <View style={styles.chartContainer}>
+                        <View style={styles.chartWrapper}>
+                            {/* Barra de progresso visual */}
+                            <View style={styles.progressContainer}>
+                                <View style={styles.progressBar}>
+                                    <View
+                                        style={[
+                                            styles.progressFill,
+                                            { width: `${percentualTempo}%`, backgroundColor: '#FF6B6B' },
+                                        ]}
+                                    />
+                                </View>
+                                <Text style={styles.progressText}>
+                                    {percentualTempo}% do tempo orçado utilizado
+                                </Text>
+                            </View>
+                        </View>
+
+                        {/* Legenda e Percentual */}
+                        <View style={styles.legendContainer}>
+                            <View style={styles.legendItem}>
                                 <View
-                                    style={[
-                                        styles.progressFill,
-                                        { width: `${percentualTempo}%`, backgroundColor: '#FF6B6B' },
-                                    ]}
+                                    style={[styles.legendColor, { backgroundColor: '#FF6B6B' }]}
                                 />
+                                <View style={styles.legendText}>
+                                    <Text style={styles.legendLabel}>Tempo Gasto</Text>
+                                    <Text style={styles.legendValue}>
+                                        {metrics.tempoGasto}h ({percentualTempo}%)
+                                    </Text>
+                                </View>
                             </View>
-                            <Text style={styles.progressText}>
-                                {percentualTempo}% do tempo orçado utilizado
-                            </Text>
+
+                            <View style={styles.legendItem}>
+                                <View
+                                    style={[styles.legendColor, { backgroundColor: '#4ECDC4' }]}
+                                />
+                                <View style={styles.legendText}>
+                                    <Text style={styles.legendLabel}>Tempo Restante</Text>
+                                    <Text style={styles.legendValue}>
+                                        {metrics.horasOrcadas - metrics.tempoGasto}h ({100 - percentualTempo}%)
+                                    </Text>
+                                </View>
+                            </View>
                         </View>
                     </View>
 
-                    {/* Legenda e Percentual */}
-                    <View style={styles.legendContainer}>
-                        <View style={styles.legendItem}>
-                            <View
-                                style={[styles.legendColor, { backgroundColor: '#FF6B6B' }]}
+                    {/* Cards de Métricas */}
+                    <View style={styles.metricsGrid}>
+                        {/* Card 1: Horas Orçadas */}
+                        <View style={styles.metricCard}>
+                            <Text style={styles.metricLabel}>Horas Orçadas</Text>
+                            <Text style={styles.metricValue}>{metrics.horasOrcadas}h</Text>
+                            <Text style={styles.metricSubtext}>Total do período</Text>
+                        </View>
+
+                        {/* Card 2: Tempo Gasto */}
+                        <View style={styles.metricCard}>
+                            <Text style={styles.metricLabel}>Tempo Gasto</Text>
+                            <Text style={styles.metricValue}>{metrics.tempoGasto}h</Text>
+                            <Text style={styles.metricSubtext}>{percentualTempo}% utilizado</Text>
+                        </View>
+
+                        {/* Card 3: Custo Atual */}
+                        <View style={styles.metricCard}>
+                            <Text style={styles.metricLabel}>Custo Atual</Text>
+                            <Text style={styles.metricValue}>R$ {metrics.custoAtual.toLocaleString('pt-BR')}</Text>
+                            <Text style={styles.metricSubtext}>{percentualCusto}% do orçamento</Text>
+                        </View>
+
+                        {/* Card 4: Orçamento Total */}
+                        <View style={styles.metricCard}>
+                            <Text style={styles.metricLabel}>Orçamento Total</Text>
+                            <Text style={styles.metricValue}>R$ {metrics.orcamentoTotal.toLocaleString('pt-BR')}</Text>
+                            <Text style={styles.metricSubtext}>Disponível</Text>
+                        </View>
+                    </View>
+
+                    {/* Resumo Mensal */}
+                    <View style={styles.summaryContainer}>
+                        <Text style={styles.summaryTitle}>Resumo do Mês</Text>
+                        <View style={styles.summaryContent}>
+                            <SummaryRow
+                                label="Orçamento Restante"
+                                value={`R$ ${(metrics.orcamentoTotal - metrics.custoAtual).toLocaleString('pt-BR')}`}
+                                color="#4ECDC4"
                             />
-                            <View style={styles.legendText}>
-                                <Text style={styles.legendLabel}>Tempo Gasto</Text>
-                                <Text style={styles.legendValue}>
-                                    {metrics.tempoGasto}h ({percentualTempo}%)
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.legendItem}>
-                            <View
-                                style={[styles.legendColor, { backgroundColor: '#4ECDC4' }]}
+                            <SummaryRow
+                                label="Horas Restantes"
+                                value={`${metrics.horasOrcadas - metrics.tempoGasto}h`}
+                                color="#95E1D3"
                             />
-                            <View style={styles.legendText}>
-                                <Text style={styles.legendLabel}>Tempo Restante</Text>
-                                <Text style={styles.legendValue}>
-                                    {metrics.horasOrcadas - metrics.tempoGasto}h ({100 - percentualTempo}%)
-                                </Text>
-                            </View>
+                            <SummaryRow
+                                label="Taxa Horária"
+                                value={`R$ ${(metrics.custoAtual / metrics.tempoGasto).toFixed(2)}`}
+                                color="#A8E6CF"
+                            />
                         </View>
                     </View>
-                </View>
+                </ScrollView>
 
-                {/* Cards de Métricas */}
-                <View style={styles.metricsGrid}>
-                    {/* Card 1: Horas Orçadas */}
-                    <View style={styles.metricCard}>
-                        <Text style={styles.metricLabel}>Horas Orçadas</Text>
-                        <Text style={styles.metricValue}>{metrics.horasOrcadas}h</Text>
-                        <Text style={styles.metricSubtext}>Total do período</Text>
-                    </View>
-
-                    {/* Card 2: Tempo Gasto */}
-                    <View style={styles.metricCard}>
-                        <Text style={styles.metricLabel}>Tempo Gasto</Text>
-                        <Text style={styles.metricValue}>{metrics.tempoGasto}h</Text>
-                        <Text style={styles.metricSubtext}>{percentualTempo}% utilizado</Text>
-                    </View>
-
-                    {/* Card 3: Custo Atual */}
-                    <View style={styles.metricCard}>
-                        <Text style={styles.metricLabel}>Custo Atual</Text>
-                        <Text style={styles.metricValue}>R$ {metrics.custoAtual.toLocaleString('pt-BR')}</Text>
-                        <Text style={styles.metricSubtext}>{percentualCusto}% do orçamento</Text>
-                    </View>
-
-                    {/* Card 4: Orçamento Total */}
-                    <View style={styles.metricCard}>
-                        <Text style={styles.metricLabel}>Orçamento Total</Text>
-                        <Text style={styles.metricValue}>R$ {metrics.orcamentoTotal.toLocaleString('pt-BR')}</Text>
-                        <Text style={styles.metricSubtext}>Disponível</Text>
-                    </View>
-                </View>
-
-                {/* Resumo Mensal */}
-                <View style={styles.summaryContainer}>
-                    <Text style={styles.summaryTitle}>Resumo do Mês</Text>
-                    <View style={styles.summaryContent}>
-                        <SummaryRow
-                            label="Orçamento Restante"
-                            value={`R$ ${(metrics.orcamentoTotal - metrics.custoAtual).toLocaleString('pt-BR')}`}
-                            color="#4ECDC4"
-                        />
-                        <SummaryRow
-                            label="Horas Restantes"
-                            value={`${metrics.horasOrcadas - metrics.tempoGasto}h`}
-                            color="#95E1D3"
-                        />
-                        <SummaryRow
-                            label="Taxa Horária"
-                            value={`R$ ${(metrics.custoAtual / metrics.tempoGasto).toFixed(2)}`}
-                            color="#A8E6CF"
-                        />
-                    </View>
-                </View>
-            </ScrollView>
-        </LinearGradient>
+                <AppCopyrigth />
+            </LinearGradient>
+        </SafeAreaView>
     );
 }
 
@@ -183,7 +217,7 @@ const styles = StyleSheet.create({
     },
     header: {
         paddingHorizontal: 20,
-        paddingTop: 20,
+        paddingTop: 10,
         paddingBottom: 10,
     },
     title: {
@@ -296,6 +330,7 @@ const styles = StyleSheet.create({
     },
     summaryContainer: {
         marginHorizontal: 20,
+        marginBottom: 20,
         backgroundColor: 'rgba(255, 255, 255, 0.08)',
         borderRadius: 16,
         padding: 16,
@@ -333,4 +368,4 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: '#FFFFFF',
     },
-}); 
+});

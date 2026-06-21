@@ -1,145 +1,218 @@
 // TelaLancamentoHoras.tsx
-// Tela para lançamento de horas trabalhadas em projetos
-// Esta tela pode ser acessada pelo gestor, supervisor e colaborador para registrar as horas dedicadas a cada projeto, etapa e atividade
-// O lançamento de horas é fundamental para o controle de custos, acompanhamento do progresso e análise de desempenho dos projetos
+// Tela simplificada para lançamento de horas trabalhadas em projetos
+// Mantendo estritamente os campos solicitados: data, horaini, horafim e observação.
 // =====================================================================================================================
 
-import React, { useState } from "react";
-import { View, Text, Button, StyleSheet, Alert, Platform, TextInput } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { db } from "../services/firebaseConfig";
-import { addDoc, collection } from "firebase/firestore";
-import { useAuth } from "../context/AuthContext";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  Text,
+  TextInput,
+  Button,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  View,
+  StyleSheet,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useBackHandlerLogout } from "../hooks/useBackHandlerLogout";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useAuth } from "../context/AuthContext";
+import { useLancamentoHoras } from "../hooks/useLancamentoHoras";
+import { globalStyles } from "../styles/globalStyles";
 
-// Definição das rotas que podem passar params
+// Componentes
+import AppHeader from "../components/AppHeader";
+import AppCopyrigth from "../components/AppCopyrigth";
+import SeletorDataHora from "../components/SeletorDataHora";
+import CampoRotulo from "../components/CampoRotulo";
+
 type RootStackParamList = {
-  TelaLancamentoHoras: { projetoId: string; projetoNome: string };
+  TelaLancamentoHoras: {
+    projetoId: string;
+    projetoNome: string;
+  };
 };
 
 type Props = NativeStackScreenProps<RootStackParamList, "TelaLancamentoHoras">;
 
 export default function TelaLancamentoHoras({ route, navigation }: Props) {
   const { projetoId, projetoNome } = route.params;
-  const { usuarioLogado } = useAuth();
+  const { usuarioLogado, perfil, logout } = useAuth();
 
-  const [data, setData] = useState(new Date());
-  const [horaInicio, setHoraInicio] = useState(new Date());
-  const [horaFim, setHoraFim] = useState(new Date());
-  const [observacao, setObservacao] = useState("");
+  useBackHandlerLogout();
 
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showHoraInicioPicker, setShowHoraInicioPicker] = useState(false);
-  const [showHoraFimPicker, setShowHoraFimPicker] = useState(false);
-
-  const salvarLancamento = async () => {
-    try {
-      if (horaFim <= horaInicio) {
-        Alert.alert("Erro", "Hora fim deve ser maior que hora início.");
-        return;
+  useFocusEffect(
+    useCallback(() => {
+      if (!usuarioLogado) {
+        console.log("Usuário não está logado");
       }
+    }, [usuarioLogado]),
+  );
 
-      const duracaoHoras = (horaFim.getTime() - horaInicio.getTime()) / (1000 * 60 * 60);
+  const handleLogout = async () => {
+    await logout();
+  };
 
-      await addDoc(collection(db, "registro_horas"), {
-        data,
-        hora_inicio: horaInicio,
-        hora_fim: horaFim,
-        duracao_total: duracaoHoras,
-        fk_projeto: projetoId,
-        fk_usuario: usuarioLogado?.uid || "",
-        fk_etapa: "",
-        observacao,
-      });
+  const {
+    data,
+    setData,
+    horaInicio,
+    setHoraInicio,
+    horaFim,
+    setHoraFim,
+    observacao,
+    setObservacao,
+    carregando,
+    showDatePicker,
+    showHoraInicioPicker,
+    showHoraFimPicker,
+    abrirDatePicker,
+    fecharDatePicker,
+    abrirHoraInicioPicker,
+    fecharHoraInicioPicker,
+    abrirHoraFimPicker,
+    fecharHoraFimPicker,
+    salvarLancamento,
+  } = useLancamentoHoras({
+    projetoId,
+    projetoNome,
+    usuarioId: usuarioLogado?.uid || "",
+    usuarioNome: perfil?.nome || "",
+  });
 
-      Alert.alert("Sucesso", "Horas lançadas com sucesso!");
+  const handleSalvar = async () => {
+    const success = await salvarLancamento();
+    if (success) {
       navigation.goBack();
-    } catch (error: any) {
-      Alert.alert("Erro", error.message);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Projeto: {projetoNome}</Text>
+    <SafeAreaView style={{ flex: 1 }}>
+      <LinearGradient colors={["#000060", "#3232B5", "#00007D"]} style={styles.container}>
 
-      {/* Seleção da Data */}
-      <Button
-        title={`Data: ${data.toLocaleDateString()}`}
-        onPress={() => setShowDatePicker(true)}
-      />
-      {showDatePicker && (
-        <DateTimePicker
-          value={data}
-          mode="date"
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={(event, selectedDate) => {
-            setShowDatePicker(false);
-            if (selectedDate) setData(selectedDate);
+        <AppHeader
+          nomeUsuario={perfil?.nome || "Usuário"}
+          onLogout={handleLogout}
+          mostrarVoltar={navigation.canGoBack()}
+          onVoltar={() => {
+            if (navigation.canGoBack()) {
+              navigation.goBack();
+            }
           }}
         />
-      )}
 
-      {/* Seleção Hora Início */}
-      <Button
-        title={`Hora início: ${horaInicio.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`}
-        onPress={() => setShowHoraInicioPicker(true)}
-      />
-      {showHoraInicioPicker && (
-        <DateTimePicker
-          value={horaInicio}
-          mode="time"
-          is24Hour={true}
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={(event, selectedTime) => {
-            setShowHoraInicioPicker(false);
-            if (selectedTime) setHoraInicio(selectedTime);
-          }}
-        />
-      )}
+        <KeyboardAvoidingView
+          style={styles.contentWrapper}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.headerSection}>
+              <Text style={globalStyles.title}>Lançamento de Horas</Text>
+              <Text style={globalStyles.description}>Registre as horas trabalhadas no projeto.</Text>
+            </View>
 
-      {/* Seleção Hora Fim */}
-      <Button
-        title={`Hora fim: ${horaFim.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`}
-        onPress={() => setShowHoraFimPicker(true)}
-      />
-      {showHoraFimPicker && (
-        <DateTimePicker
-          value={horaFim}
-          mode="time"
-          is24Hour={true}
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={(event, selectedTime) => {
-            setShowHoraFimPicker(false);
-            if (selectedTime) setHoraFim(selectedTime);
-          }}
-        />
-      )}
+            <View style={styles.formSection}>
+              {/* Identificação estável do Projeto em modo leitura */}
+              <CampoRotulo rotulo="Projeto" valor={projetoNome || ""} />
 
-      {/* Observação */}
-      <Text style={styles.label}>Observação:</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Digite uma observação"
-        value={observacao}
-        onChangeText={setObservacao}
-      />
+              {/* 1. Campo Data */}
+              <SeletorDataHora
+                rotulo="Data"
+                valor={data}
+                mostrar={showDatePicker}
+                onPress={abrirDatePicker}
+                onChange={setData}
+                onClose={fecharDatePicker}
+                modo="date"
+                formato="date"
+              />
 
-      <View style={{ marginTop: 20 }}>
-        <Button title="Salvar" onPress={salvarLancamento} />
-      </View>
-    </View>
+              {/* 2. Campo Hora Início */}
+              <SeletorDataHora
+                rotulo="Hora Início"
+                valor={horaInicio}
+                mostrar={showHoraInicioPicker}
+                onPress={abrirHoraInicioPicker}
+                onChange={setHoraInicio}
+                onClose={fecharHoraInicioPicker}
+                modo="time"
+                formato="time"
+              />
+
+              {/* 3. Campo Hora Fim */}
+              <SeletorDataHora
+                rotulo="Hora Fim"
+                valor={horaFim}
+                mostrar={showHoraFimPicker}
+                onPress={abrirHoraFimPicker}
+                onChange={setHoraFim}
+                onClose={fecharHoraFimPicker}
+                modo="time"
+                formato="time"
+              />
+
+              {/* 4. Campo Observação */}
+              <Text style={globalStyles.label}>Observação:</Text>
+              <TextInput
+                style={[globalStyles.input, globalStyles.textArea]}
+                value={observacao}
+                onChangeText={setObservacao}
+                placeholder="Descreva a atividade realizada..."
+                placeholderTextColor="#999"
+                multiline
+                numberOfLines={4}
+              />
+
+              {carregando ? (
+                <ActivityIndicator
+                  size="large"
+                  color="#86EBFF"
+                  style={{ marginTop: 15 }}
+                />
+              ) : (
+                <View style={globalStyles.buttonContainer}>
+                  <Button
+                    title="Salvar Lançamento"
+                    color="#00849e"
+                    onPress={handleSalvar}
+                  />
+                </View>
+              )}
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+
+        <AppCopyrigth />
+      </LinearGradient>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#000060" },
-  title: { color: "#fff", fontSize: 18, marginBottom: 20 },
-  label: { color: "#fff", marginTop: 15, marginBottom: 5 },
-  input: {
-    backgroundColor: "#fff",
-    marginBottom: 15,
-    padding: 10,
-    borderRadius: 6,
+  container: { flex: 1 },
+  contentWrapper: {
+    flex: 1,
+    paddingHorizontal: 25,
+    paddingVertical: 10,
+  },
+  scrollContent: {
+    paddingBottom: 20,
+  },
+  headerSection: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  formSection: {
+    width: "100%",
   },
 });

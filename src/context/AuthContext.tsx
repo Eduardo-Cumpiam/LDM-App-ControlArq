@@ -1,7 +1,6 @@
 // src/context/AuthContext.tsx
 // Contexto global para gerenciar o estado de autenticação e permissões do ControlArq
-// O AuthContext é o coração do sistema de autenticação do ControlArq. Ele é responsável por manter o estado do usuário logado, seu perfil e as funções de login, cadastro e logout. Todas as telas do aplicativo podem acessar essas informações e funções através do hook useAuth, garantindo uma experiência consistente e segura em todo o app. O AuthProvider deve envolver toda a aplicação para que o contexto esteja disponível globalmente.
-//===========================================================================================
+// ===========================================================================================
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import {
@@ -13,14 +12,14 @@ import {
 import { auth, db } from "../services/firebaseConfig";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
-interface PerfilUsuario {
+export interface PerfilUsuario {
   id_usuario: string;
   nome: string;
   email: string;
   nivel_acesso: "gestor" | "supervisor" | "colaborador";
-  cargo: "Sênior" | "Pleno" | "Júnior" | "Estagiário";
-  valor_hora_tecnica: number;
-  status: "pendente" | "autorizado" | "excluído";
+  valor_hora: number;
+  telefone?: string;
+  status: "pendente" | "autorizado" | "excluido";
 }
 
 interface AuthContextData {
@@ -33,8 +32,8 @@ interface AuthContextData {
     nome: string,
     email: string,
     nivelAcesso: "gestor" | "supervisor" | "colaborador",
-    cargo: "Sênior" | "Pleno" | "Júnior" | "Estagiário",
-    valorHora: number
+    valorHora: number,
+    telefone: string
   ) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -71,13 +70,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (userDoc.exists()) {
         const perfilData = userDoc.data() as PerfilUsuario;
-        // ✅ Não lança erro para status pendente/excluído
         setPerfil(perfilData);
       } else {
         throw new Error("Perfil não encontrado no banco de dados.");
       }
     } catch (error: any) {
-      // ✅ Apenas erros técnicos do Firebase são tratados aqui
       if (__DEV__) {
         console.log("Erro de login:", error?.code, error?.message);
       }
@@ -91,8 +88,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     nome: string,
     email: string,
     nivelAcesso: "gestor" | "supervisor" | "colaborador",
-    cargo: "Sênior" | "Pleno" | "Júnior" | "Estagiário",
-    valorHora: number
+    valorHora: number,
+    telefone: string
   ) => {
     try {
       await setDoc(doc(db, "usuarios", idProvisorio), {
@@ -100,8 +97,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         nome,
         email,
         nivel_acesso: nivelAcesso,
-        cargo,
-        valor_hora_tecnica: Number(valorHora),
+        valor_hora: Number(valorHora),
+        telefone,
         status: "pendente",
         data_cadastro: new Date().toISOString(),
       });
