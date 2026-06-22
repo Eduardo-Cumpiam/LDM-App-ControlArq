@@ -3,7 +3,7 @@
 // Mantendo estritamente os campos solicitados: data, horaini, horafim e observação.
 // =====================================================================================================================
 
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import {
   Text,
   TextInput,
@@ -16,8 +16,6 @@ import {
   StyleSheet,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useNavigation } from "@react-navigation/native";
-import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useBackHandlerLogout } from "../hooks/useBackHandlerLogout";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -45,14 +43,6 @@ export default function TelaLancamentoHoras({ route, navigation }: Props) {
   const { usuarioLogado, perfil, logout } = useAuth();
 
   useBackHandlerLogout();
-
-  useFocusEffect(
-    useCallback(() => {
-      if (!usuarioLogado) {
-        console.log("Usuário não está logado");
-      }
-    }, [usuarioLogado]),
-  );
 
   const handleLogout = async () => {
     await logout();

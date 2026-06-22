@@ -1,6 +1,6 @@
 // useLancamentoHoras.ts
 // Hook de lógica para lançamento de horas trabalhadas em projetos
-// Mantém os cálculos em segundo plano e remove as dependências de etapas.
+// Inclui validação de segurança para impedir lançamentos anteriores à criação do projeto.
 //=======================================================================================================
 
 import { useState, useEffect } from 'react';
@@ -91,12 +91,45 @@ export function useLancamentoHoras({ projetoId, projetoNome, usuarioId, usuarioN
     try {
       if (horaFim <= horaInicio) {
         Alert.alert("Atenção", "Hora final deve ser maior que hora inicial.");
-        return;
+        return false;
       }
 
       setCarregando(true);
 
-      // Garante que pegamos o valor da hora mais atualizado direto do banco
+      // 1. Busca os metadados do projeto primeiro para validar a data retroativa
+      const projetoRef = doc(db, "projetos", projetoId);
+      const projetoSnap = await getDoc(projetoRef);
+      
+      if (!projetoSnap.exists()) {
+        Alert.alert("Erro", "Projeto não encontrado.");
+        return false;
+      }
+
+      const projetoData = projetoSnap.data();
+      // Verifica se o campo no Firestore chama 'data_inicio' ou 'criadoEm'
+      const timestampInicio = projetoData.data_inicio || projetoData.criadoEm;
+
+      if (timestampInicio) {
+        const dataInicioProjeto = timestampInicio.toDate();
+
+        // Zera as horas de ambas as datas para fazer a comparação linear pura por dia
+        const dataLancamentoZero = new Date(data.getTime());
+        dataLancamentoZero.setHours(0, 0, 0, 0);
+
+        const dataInicioProjetoZero = new Date(dataInicioProjeto.getTime());
+        dataInicioProjetoZero.setHours(0, 0, 0, 0);
+
+        // 🛑 TRAVA DE REGRA DE NEGÓCIO
+        if (dataLancamentoZero < dataInicioProjetoZero) {
+          Alert.alert(
+            "Data Inválida",
+            `Este projeto foi iniciado/cadastrado em ${dataInicioProjeto.toLocaleDateString('pt-BR')}.\n\nNão é permitido efetuar lançamentos retroativos anteriores a esta data.`
+          );
+          return false;
+        }
+      }
+
+      // 2. Garante que pegamos o valor da hora mais atualizado do usuário direto do banco
       let valorHoraAtual = valorHoraTecnica;
       if (usuarioId) {
         const usuarioRef = doc(db, "usuarios", usuarioId);
@@ -108,7 +141,7 @@ export function useLancamentoHoras({ projetoId, projetoNome, usuarioId, usuarioN
 
       const custoTotalCalculado = Number((duracaoTotal * valorHoraAtual).toFixed(2));
 
-      // 1. Salva o registro de horas simplificado no Firestore
+      // 3. Salva o registro de horas simplificado no Firestore
       await addDoc(collection(db, "registro_horas"), {
         fk_projeto: projetoId,
         projeto_nome: projetoNome,
@@ -125,25 +158,20 @@ export function useLancamentoHoras({ projetoId, projetoNome, usuarioId, usuarioN
         data_criacao: Timestamp.fromDate(new Date()),
       });
 
-      // 2. Atualiza os acumulados agregados no documento do projeto
-      const projetoRef = doc(db, "projetos", projetoId);
-      const projetoSnap = await getDoc(projetoRef);
-      if (projetoSnap.exists()) {
-        const projeto = projetoSnap.data();
-        const horasAtuais = projeto.horas_gastas || 0;
-        const horasOrcadas = projeto.horas_orcadas || 0;
-        const custoAcumuladoAtual = projeto.valor_gasto || 0;
+      // 4. Atualiza os acumulados agregados no documento do projeto (usando os dados capturados no passo 1)
+      const horasAtuais = projetoData.horas_gastas || 0;
+      const horasOrcadas = projetoData.horas_orcadas || 0;
+      const custoAcumuladoAtual = projetoData.valor_gasto || 0;
 
-        const novasHoras = horasAtuais + duracaoTotal;
-        const novoCustoAcumulado = custoAcumuladoAtual + custoTotalCalculado;
-        const percentual = horasOrcadas > 0 ? Number(((novasHoras / horasOrcadas) * 100).toFixed(2)) : 0;
+      const novasHoras = horasAtuais + duracaoTotal;
+      const novoCustoAcumulado = custoAcumuladoAtual + custoTotalCalculado;
+      const percentual = horasOrcadas > 0 ? Number(((novasHoras / horasOrcadas) * 100).toFixed(2)) : 0;
 
-        await updateDoc(projetoRef, {
-          horas_gastas: novasHoras,
-          percentual_conclusao: percentual,
-          valor_gasto: novoCustoAcumulado,
-        });
-      }
+      await updateDoc(projetoRef, {
+        horas_gastas: novasHoras,
+        percentual_conclusao: percentual,
+        valor_gasto: novoCustoAcumulado,
+      });
 
       Alert.alert(
         "Sucesso",

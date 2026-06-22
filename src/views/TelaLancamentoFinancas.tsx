@@ -1,11 +1,5 @@
 // TelaLancamentoFinancas.tsx
 // Arquivo de tela para o gestor lançar faturamentos, despesas e impostos vinculados a um projeto ativo.
-// Tela para o gestor lançar faturamentos, despesas e impostos vinculados a um projeto ativo.
-// ====================================================================================================================
-
-// TelaLancamentoFinancas.tsx
-// Arquivo de tela para o gestor lançar faturamentos, despesas e impostos vinculados a um projeto ativo.
-// Substituído o Picker nativo por um Modal + FlatList customizado para garantir contraste e identidade visual estável.
 // ====================================================================================================================
 
 import React, { useState } from "react";
@@ -31,12 +25,8 @@ import AppHeader from "../components/AppHeader";
 import { useAuth } from "../context/AuthContext";
 import AppCopyrigth from "../components/AppCopyrigth";
 import SeletorDataHora from "../components/SeletorDataHora";
-import CampoRotulo from "../components/CampoRotulo";
 import { RootStackParamList } from "../navigation/AppNavigator";
-import {
-  useLancamentoFinancas,
-  TipoLancamento,
-} from "../hooks/useLancamentoFinancas";
+import { useLancamentoFinancas, TipoLancamento, } from "../hooks/useLancamentoFinancas";
 
 type TelaFinancasNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -49,7 +39,6 @@ type Props = {
 
 export default function TelaLancamentoFinancas({ navigation }: Props) {
   const { perfil, logout } = useAuth();
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [modalProjetosVisivel, setModalProjetosVisivel] = useState(false);
 
   const handleLogout = async () => {
@@ -74,6 +63,9 @@ export default function TelaLancamentoFinancas({ navigation }: Props) {
 
   // Encontra o objeto do projeto selecionado para exibir o nome no botão do "Picker"
   const projetoAtual = projetos.find((p) => p.id === projetoSelecionado);
+
+  // Estado local simplificado apenas para gerenciar a abertura do Picker nativo nesta View
+  const [openDatePicker, setOpenDatePicker] = useState(false);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -157,10 +149,10 @@ export default function TelaLancamentoFinancas({ navigation }: Props) {
             <SeletorDataHora
               rotulo="DATA DO EVENTO"
               valor={data}
-              mostrar={showDatePicker}
-              onPress={() => setShowDatePicker(true)}
+              mostrar={openDatePicker}
+              onPress={() => setOpenDatePicker(true)}
               onChange={setData}
-              onClose={() => setShowDatePicker(false)}
+              onClose={() => setOpenDatePicker(false)}
               modo="date"
               formato="date"
             />
@@ -212,7 +204,7 @@ export default function TelaLancamentoFinancas({ navigation }: Props) {
         <AppCopyrigth />
       </LinearGradient>
 
-      {/* MODAL DE SELEÇÃO DE PROJETOS TOTALMENTE ESTILIZADO */}
+      {/* MODAL DE SELEÇÃO DE PROJETOS */}
       <Modal
         visible={modalProjetosVisivel}
         animationType="slide"
@@ -389,18 +381,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     letterSpacing: 1,
   },
-  // Estilos do Modal Customizado
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.6)",
-    justifyContent: "flex-end", // Abre vindo de baixo, estilo bottom-sheet suave
+    justifyContent: "flex-end",
   },
   modalContent: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
     paddingTop: 20,
-    maxHeight: "70%", // Não cobre a tela toda, mantendo contexto fluido
+    maxHeight: "70%",
   },
   modalHeader: {
     flexDirection: "row",

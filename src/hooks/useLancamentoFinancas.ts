@@ -1,5 +1,6 @@
 // useLancamentoFinancas.ts
 // Hook customizado para gerenciar regras de negócio e persistência de lançamentos financeiros.
+// Inclui validação de segurança para impedir lançamentos anteriores à criação do projeto.
 // ====================================================================================================================
 
 import { useState, useEffect } from "react";
@@ -9,6 +10,8 @@ import {
   query,
   where,
   getDocs,
+  getDoc,
+  doc,
   addDoc,
   Timestamp,
 } from "firebase/firestore";
@@ -81,8 +84,44 @@ export function useLancamentoFinancas(navigation: any) {
       return;
     }
 
-    setCarregando(true); // ✅ Corrigido para true para exibir o ActivityIndicator do botão
+    setCarregando(true); // ✅ Exibe o ActivityIndicator do botão
+    
     try {
+      // 🛑 NOVA VALIDAÇÃO: Busca o projeto selecionado para checar a data de início
+      const projetoRef = doc(db, "projetos", projetoSelecionado);
+      const projetoSnap = await getDoc(projetoRef);
+
+      if (!projetoSnap.exists()) {
+        Alert.alert("Erro", "O projeto selecionado não foi encontrado.");
+        setCarregando(false);
+        return;
+      }
+
+      const projetoData = projetoSnap.data();
+      const timestampInicio = projetoData.data_inicio || projetoData.criadoEm;
+
+      if (timestampInicio) {
+        const dataInicioProjeto = timestampInicio.toDate();
+
+        // Compara apenas o dia civil, zerando os horários
+        const dataLancamentoZero = new Date(data.getTime());
+        dataLancamentoZero.setHours(0, 0, 0, 0);
+
+        const dataInicioProjetoZero = new Date(dataInicioProjeto.getTime());
+        dataInicioProjetoZero.setHours(0, 0, 0, 0);
+
+        // Bloqueia se a data do movimento financeiro for anterior ao projeto existir
+        if (dataLancamentoZero < dataInicioProjetoZero) {
+          Alert.alert(
+            "Data Inválida",
+            `Este projeto foi iniciado/cadastrado em ${dataInicioProjeto.toLocaleDateString('pt-BR')}.\n\nNão é permitido registrar movimentações financeiras antes desta data.`
+          );
+          setCarregando(false);
+          return;
+        }
+      }
+
+      // Se passou na trava, realiza a inserção normalmente
       await addDoc(collection(db, "financas"), {
         projetoId: projetoSelecionado,
         tipo,
