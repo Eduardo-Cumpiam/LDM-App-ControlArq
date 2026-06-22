@@ -42,7 +42,7 @@ export function useLancamentoFinancas(navigation: any) {
       try {
         const q = query(
           collection(db, "projetos"),
-          where("status", "==", "Ativo"),
+          where("status", "==", "ativo"),
         );
         const querySnapshot = await getDocs(q);
         const listaProjetos: ItemProjeto[] = [];
@@ -51,7 +51,7 @@ export function useLancamentoFinancas(navigation: any) {
           const dados = doc.data();
           listaProjetos.push({ 
             id: doc.id, 
-            nome: dados.nome_projeto || "Sem nome" // ✅ Buscando o campo correto do Firestore
+            nome: dados.nome_projeto || "Sem nome"
           });
         });
         

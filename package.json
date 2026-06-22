@@ -19,6 +19,8 @@
     "d3-shape": "^3.2.0",
     "expo": "~54.0.33",
     "expo-linear-gradient": "~15.0.8",
+    "expo-print": "~15.0.8",
+    "expo-sharing": "~14.0.8",
     "expo-splash-screen": "~31.0.13",
     "expo-status-bar": "~3.0.9",
     "firebase": "^12.14.0",

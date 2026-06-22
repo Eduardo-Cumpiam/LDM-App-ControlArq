@@ -114,7 +114,7 @@ export default function TelaGestorInicial({ navigation }: Props) {
             {/* Leva para a visualização analítica global de resultados */}
             <Pressable
               style={styles.button}
-              onPress={() => navigation.navigate("TelaDashboards")}
+              onPress={() => navigation.navigate("TelaPainelAnalitico")}
             >
               <Ionicons
                 name="pie-chart"

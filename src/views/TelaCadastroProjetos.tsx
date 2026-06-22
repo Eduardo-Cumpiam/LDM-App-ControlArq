@@ -121,7 +121,7 @@ export default function TelaCadastroProjetos({ navigation }: Props) {
         horas_orcadas: parseInt(horasOrcadas, 10),
         valor_orcamento: parseFloat(valorOrcamento),
         descricao,
-        cor_projeto: corSelecionada, // ✅ Salvando a cor escolhida no Firestore
+        cor_projeto: corSelecionada,
         data_inicio: Timestamp.fromDate(dataInicio),
         data_termino_previsto: Timestamp.fromDate(dataTermino),
         horas_gastas: 0,

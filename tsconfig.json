@@ -8,6 +8,6 @@
   "compilerOptions": {
     "strict": true
   },
-  "include": ["src", "env.d.ts", "_Apoio/Códigos_Backp/Bkp_TelaCadastroEtapas.jsx", "_Apoio/Códigos_Backp/Bkp_apoio.tsx", "_Apoio/Códigos_Backp/Bkp_TelaCadastroClientes.tsx", "_Apoio/Códigos_Backp/Bkp_TelaCadastroProjetos.tsx", "_Apoio/Códigos_Backp/Bkp_TelaCadastroUsuario.tsx", "_Apoio/Códigos_Backp/Bkp_TelaGestao.tsx", "_Apoio/Códigos_Backp/Bkp_TelaGestorInicial.tsx", "_Apoio/Códigos_Backp/Bkp_TelaLancamentoHoras.tsx", "_Apoio/Códigos_Backp/Bkp_TelaLogin.tsx", "_Apoio/Códigos_Backp/Bkp_TelaProjetos.tsx", "_Apoio/Códigos_Backp/BkpTelaLogin.tsx", "_Apoio/Códigos_Backp/Bkp_TelaCriarConta.jsx", "_Apoio/Códigos_Backp/idGenerator.ts", "_Apoio/Códigos_Backp/TelaExcluir.tsx"]
+  "include": ["src", "env.d.ts", "_Apoio/Códigos_Backp/Bkp_TelaCadastroEtapas.jsx", "_Apoio/Códigos_Backp/Bkp_apoio.tsx", "_Apoio/Códigos_Backp/Bkp_TelaCadastroClientes.tsx", "_Apoio/Códigos_Backp/Bkp_TelaCadastroProjetos.tsx", "_Apoio/Códigos_Backp/Bkp_TelaCadastroUsuario.tsx", "_Apoio/Códigos_Backp/Bkp_TelaGestao.tsx", "_Apoio/Códigos_Backp/Bkp_TelaGestorInicial.tsx", "_Apoio/Códigos_Backp/Bkp_TelaLancamentoHoras.tsx", "_Apoio/Códigos_Backp/Bkp_TelaLogin.tsx", "_Apoio/Códigos_Backp/Bkp_TelaProjetos.tsx", "_Apoio/Códigos_Backp/BkpTelaLogin.tsx", "_Apoio/Códigos_Backp/Bkp_TelaCriarConta.jsx", "_Apoio/Códigos_Backp/idGenerator.ts", "_Apoio/Códigos_Backp/TelaExcluir.tsx", "_Apoio/Códigos_Backp/TelaDashboards.tsx"]
 
 }
