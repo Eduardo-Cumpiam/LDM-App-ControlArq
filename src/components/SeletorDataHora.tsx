@@ -1,5 +1,5 @@
 // SeletorDataHora.tsx
-// Arquivo
+// Arquivo de componente para seleção de data e hora
 //============================================================================================
 
 import React, { useState } from 'react';
