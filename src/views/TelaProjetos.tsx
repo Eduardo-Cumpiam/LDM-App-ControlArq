@@ -174,24 +174,26 @@ export default function TelaProjetos() {
 
 const styles = StyleSheet.create({
   container: { paddingHorizontal: 20, flex: 1 },
+
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 15,
   },
-  namepage: { fontSize: 22, color: "#fff", marginTop: 10, fontWeight: "bold" },
+  namepage: { fontSize: 18, color: "#fff", marginTop: 10, fontWeight: "600" },
   card: {
     width: "100%",
     marginTop: 15,
     backgroundColor: "#0017c9",
     borderRadius: 15,
     elevation: 6,
+    alignItems: "center",
     overflow: "hidden",
-    flexDirection: "row", // Alinha a barra de cor com o conteúdo do card
+    flexDirection: "row", // Alinha a barra de cor com o conteúdo do card (projeto)
   },
   colorIndicator: {
-    width: 12, // Espessura do indicador de cor na lateral esquerda
+    width: 6, // Espessura do indicador de cor na lateral esquerda
     height: "100%",
   },
   content: {
@@ -200,19 +202,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   projectTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 14,
+    fontWeight: "600",
     marginBottom: 12,
   },
   button: {
-    backgroundColor: "#00aeff",
+    width: "80%",
+    alignSelf: "center",
+    backgroundColor: "#00849e",
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: "center",
   },
   buttonText: {
     color: "#FFFFFF",
-    fontWeight: "bold",
+    fontWeight: "600",
     fontSize: 14,
   },
   emptyText: {

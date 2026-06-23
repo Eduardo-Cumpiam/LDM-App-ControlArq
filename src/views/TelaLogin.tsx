@@ -66,7 +66,7 @@ export default function TelaLogin({ navigation }: Props) {
         }
       } else if (perfil.status === "pendente") {
         Alert.alert("Acesso pendente", "Seu cadastro ainda não foi autorizado pelo gestor.");
-      } else if (perfil.status === "excluído") {
+      } else if (perfil.status === "excluido") {
         Alert.alert("Acesso negado", "Seu cadastro foi desativado pelo gestor.");
       }
     }
@@ -97,7 +97,7 @@ export default function TelaLogin({ navigation }: Props) {
 
     try {
       await sendPasswordResetEmail(auth, email.trim());
-      Alert.alert("Email enviado", "Verifique sua caixa de entrada para redefinir a senha.");
+      Alert.alert("Email enviado", "Verifique sua caixa de entrada para redefinir a senha. Se o email estiver na lixeira, mover para a caixa de entrada");
     } catch (error: any) {
       Alert.alert("Erro ao enviar email", error.message);
     }
