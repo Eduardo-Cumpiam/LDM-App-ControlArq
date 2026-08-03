@@ -1,18 +1,19 @@
 // CampoValor.tsx
-// Arquivo
-//====================================================================================
+// Componente reutilizável para exibição de valores numéricos/destacados em modo leitura
+//=======================================================================================
 
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import { globalStyles } from '../styles/globalStyles';
+import { colors } from '../styles/colors';
 
 interface CampoValorProps {
   rotulo: string;
   valor: string;
-  corValor: string;
+  corValor?: string;
 }
 
-export default function CampoValor({ rotulo, valor, corValor }: CampoValorProps) {
+export default function CampoValor({ rotulo, valor, corValor = colors.primary, }: CampoValorProps) {
   return (
     <>
       <Text style={globalStyles.label}>{rotulo}:</Text>

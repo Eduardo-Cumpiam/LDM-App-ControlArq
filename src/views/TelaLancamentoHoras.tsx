@@ -22,6 +22,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useAuth } from "../context/AuthContext";
 import { useLancamentoHoras } from "../hooks/useLancamentoHoras";
 import { globalStyles } from "../styles/globalStyles";
+import { colors } from "../styles/colors";
 
 // Componentes
 import AppHeader from "../components/AppHeader";
@@ -83,8 +84,11 @@ export default function TelaLancamentoHoras({ route, navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <LinearGradient colors={["#000060", "#3232B5", "#00007D"]} style={styles.container}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <LinearGradient
+        colors={[colors.primarySoft, colors.background]}
+        style={styles.container}
+      >
 
         <AppHeader
           nomeUsuario={perfil?.nome || "Usuário"}
@@ -158,7 +162,7 @@ export default function TelaLancamentoHoras({ route, navigation }: Props) {
                 value={observacao}
                 onChangeText={setObservacao}
                 placeholder="Descreva a atividade realizada..."
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.textLight}
                 multiline
                 numberOfLines={4}
               />
@@ -166,14 +170,14 @@ export default function TelaLancamentoHoras({ route, navigation }: Props) {
               {carregando ? (
                 <ActivityIndicator
                   size="large"
-                  color="#86EBFF"
+                  color={colors.primary}
                   style={{ marginTop: 15 }}
                 />
               ) : (
                 <View style={globalStyles.buttonContainer}>
                   <Button
                     title="Salvar Lançamento"
-                    color="#00849e"
+                    color={colors.primary}
                     onPress={handleSalvar}
                   />
                 </View>

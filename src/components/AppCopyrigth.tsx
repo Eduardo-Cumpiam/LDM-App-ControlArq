@@ -17,7 +17,7 @@ export default function AppFooter() {
 const styles = StyleSheet.create({
   footerText: {
     fontSize: 11,
-    color: "#86EBFF",
+    color: '#4CAF50',
     textAlign: "center",
     opacity: 0.6,
     paddingTop: 10,

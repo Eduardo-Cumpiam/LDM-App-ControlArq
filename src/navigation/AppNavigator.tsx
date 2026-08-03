@@ -8,9 +8,11 @@
 // ====================================================================================================================
 
 import React from "react";
+
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
+import { colors } from "../styles/colors";
 
 // Telas
 import TelaLogin from "../views/TelaLogin";
@@ -19,7 +21,7 @@ import TelaGestorInicial from "../views/TelaGestorInicial";
 import TelaGestao from "../views/TelaGestao";
 import TelaInicial from "../views/TelaInicial";
 import TelaProjetos from "../views/TelaProjetos";
-import TelaDashboards from "../../_Apoio/Códigos_Backp/TelaDashboards";
+//import TelaDashboards from "../../_Apoio/Códigos_Backp/TelaDashboards";
 import TelaCadastroUsuarios from "../views/TelaCadastroUsuarios";
 import TelaCadastroClientes from "../views/TelaCadastroClientes";
 import TelaCadastroProjetos from "../views/TelaCadastroProjetos";
@@ -97,7 +99,7 @@ function NavigatorInterno() {
     return (
       <Stack.Navigator
         screenOptions={{
-          headerTintColor: "#00849e",
+          headerTintColor: colors.primary,
           headerTitleStyle: { fontWeight: "bold", fontSize: 20 },
         }}
       >
@@ -186,10 +188,10 @@ function NavigatorInterno() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerTintColor: "#fff",
+        headerTintColor: colors.white,
         headerTitleStyle: { fontWeight: "bold", fontSize: 25 },
         headerBackground: () => (
-          <LinearGradient colors={["#00009B", "#1C6CBD", "#000060"]} />
+          <LinearGradient colors={[colors.primary, colors.primaryLight]} />
         ),
       }}
     >

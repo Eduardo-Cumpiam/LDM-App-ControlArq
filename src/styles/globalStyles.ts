@@ -3,29 +3,33 @@
 //===========================================================================================
 
 import { StyleSheet } from 'react-native';
+import { colors } from './colors';
 
 export const globalStyles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { 
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   
   readOnlyField: {
     minHeight: 42,
     borderWidth: 2,
-    borderColor: "#86EBFF",
+    borderColor: colors.cardBorder,
     borderRadius: 6,
     paddingHorizontal: 12,
     justifyContent: "center",
     marginBottom: 12,
-    backgroundColor: "rgba(134,235,255,0.08)",
+    backgroundColor: colors.inputBackground,
   },
   
   readOnlyText: {
-    color: "#fff",
+    color: colors.textSecondary,
     fontWeight: "600",
   },
   
   label: {
     fontSize: 13,
-    color: "#fff",
+    color: colors.textPrimary,
     marginBottom: 4,
     fontWeight: "500",
   },
@@ -33,46 +37,63 @@ export const globalStyles = StyleSheet.create({
   input: {
     minHeight: 42,
     borderWidth: 2,
-    borderColor: "#fff",
+    borderColor: colors.cardBorder,
     borderRadius: 6,
     marginBottom: 12,
     paddingHorizontal: 12,
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: colors.surface,
   },
   
   inputText: {
-    color: "#fff",
+    color: colors.textPrimary,
   },
   
   pickerWrapper: {
     borderWidth: 2,
-    borderColor: "#fff",
+    borderColor: colors.cardBorder,
     borderRadius: 6,
     marginBottom: 15,
-    backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: colors.surface,
   },
   
   picker: {
-    color: "#fff",
+    color: colors.textPrimary,
   },
   
   textArea: {
     height: 100,
     paddingTop: 10,
     textAlignVertical: "top",
-    color: "#fff",
+    color: colors.textPrimary,
   },
   
   buttonContainer: {
     borderRadius: 6,
     overflow: "hidden",
     marginTop: 10,
+    backgroundColor: colors.primary,
+  },
+
+  buttonPrimary: {
+    backgroundColor: colors.primary,
+    borderRadius: 6,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+  },
+
+  buttonPrimaryText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
   },
   
   title: {
     fontSize: 24,
-    color: "#fff",
+    color: colors.primary,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 4,
@@ -80,7 +101,7 @@ export const globalStyles = StyleSheet.create({
   
   description: {
     fontSize: 13,
-    color: "#86EBFF",
+    color: colors.textSecondary,
     textAlign: "center",
   },
 });

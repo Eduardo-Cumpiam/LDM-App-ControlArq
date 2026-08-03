@@ -1,20 +1,22 @@
 // TelaInicial.tsx
 // Tela Inicial do aplicativo para Colaboradores
-// Exibe o menu simplificado de Projetos e o Dashboard privado em tempo real.
+// Exibe o menu simplificado de Projetos e o Dashboard privado em tempo real utilizado pelo colaborador.
 //======================================================================================================================
 
 import React, { useCallback, useState, useEffect } from "react";
+import AppCopyrigth from "../components/AppCopyrigth";
+import AppHeader from "../components/AppHeader";
+
 import { View, Text, Pressable, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
-import AppCopyrigth from "../components/AppCopyrigth";
-import AppHeader from "../components/AppHeader";
 import { useAuth } from "../context/AuthContext";
 import { useBackHandlerLogout } from "../hooks/useBackHandlerLogout";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import { colors } from "../styles/colors";
 
 // Firebase
 import { db } from "../services/firebaseConfig";
@@ -132,8 +134,8 @@ export default function TelaInicial({ navigation }: Props) {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <LinearGradient colors={['#000060', '#3232B5', '#00007D']} style={styles.container}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <LinearGradient colors={[colors.primarySoft, colors.background]} style={styles.container}>
         <AppHeader
           nomeUsuario={perfil?.nome}
           onLogout={handleLogout}
@@ -150,7 +152,7 @@ export default function TelaInicial({ navigation }: Props) {
         {/* Seção Central - Apenas o botão de Projetos centralizado */}
         <View style={styles.centerSection}>
           <Pressable style={styles.button} onPress={() => navigation.navigate("TelaProjetos")}>
-            <Ionicons name="folder-open" size={22} color="#fff" style={styles.icon} />
+            <Ionicons name="folder-open" size={22} color={colors.white} style={styles.icon} />
             <Text style={styles.buttonText}>Acessar Projetos</Text>
           </Pressable>
         </View>
@@ -160,7 +162,7 @@ export default function TelaInicial({ navigation }: Props) {
           <Text style={styles.dashboardSectionTitle}>MEU RESUMO DE HORAS</Text>
           
           {carregandoDash ? (
-            <ActivityIndicator size="small" color="#86EBFF" style={{ marginTop: 20 }} />
+            <ActivityIndicator size="small" color={colors.primary} style={{ marginTop: 20 }} />
           ) : (
             <FlatList
               data={dadosDash}
@@ -198,60 +200,62 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#00849e",
+    backgroundColor: colors.primary,
     borderRadius: 8,
     paddingVertical: 12,
     elevation: 4,
   },
   icon: { marginRight: 8 },
-  buttonText: { color: "#fff", fontSize: 18, fontWeight: "600" },
-  title: { fontSize: 26, color: "#fff", fontWeight: "600" },
-  title2: { fontSize: 15, color: "#fff", fontWeight: "400", opacity: 0.8, marginTop: 2 },
+  buttonText: { color: colors.white, fontSize: 18, fontWeight: "600" },
+  title: { fontSize: 26, color: colors.primary, fontWeight: "bold" },
+  title2: { fontSize: 15, color: colors.textSecondary, fontWeight: "500", marginTop: 2 },
   
   // Dashboard Estilos
   dashboardSection: {
     flex: 1, // Ocupa o restante da tela com folga
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    backgroundColor: colors.surface,
     marginHorizontal: 20,
     borderRadius: 16,
     padding: 15,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.15)",
+    borderColor: colors.cardBorder,
+    elevation: 2,
   },
   dashboardSectionTitle: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#86EBFF",
+    color: colors.primary,
     letterSpacing: 1,
     marginBottom: 12,
     textAlign: "center"
   },
   dashCard: {
-    backgroundColor: "#0017c9",
+    backgroundColor: colors.background,
     borderRadius: 10,
     padding: 12,
     marginBottom: 10,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
   },
   dashProjectTitle: {
     fontSize: 15,
     fontWeight: "bold",
-    color: "#FFFFFF",
+    color: colors.textPrimary,
     marginBottom: 4
   },
   dashTotalText: {
     fontSize: 13,
-    color: "#BBBBBB"
+    color: colors.textSecondary
   },
   dashTotalHighlight: {
-    color: "#00FF7F",
+    color: colors.primary,
     fontWeight: "bold"
   },
   dashMonthsContainer: {
     marginTop: 6,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.1)",
+    borderTopColor: colors.cardBorder,
     paddingTop: 4,
   },
   dashMonthRow: {
@@ -262,18 +266,17 @@ const styles = StyleSheet.create({
   },
   dashMonthLabel: {
     fontSize: 12,
-    color: "#E0E0E0",
+    color: colors.textSecondary,
   },
   dashMonthValue: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#86EBFF"
+    color: colors.primary
   },
   emptyDashText: {
-    color: "#fff",
+    color: colors.textSecondary,
     textAlign: "center",
     marginTop: 25,
     fontSize: 13,
-    opacity: 0.5
   },
 });

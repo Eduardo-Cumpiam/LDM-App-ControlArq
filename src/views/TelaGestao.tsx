@@ -16,6 +16,7 @@ import AppHeader from "../components/AppHeader";
 import { useAuth } from "../context/AuthContext";
 import { useBackHandlerLogout } from "../hooks/useBackHandlerLogout";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import { colors } from "../styles/colors";
 
 type TelaGestaoNavigationProp = NativeStackNavigationProp<RootStackParamList, "TelaGestao">;
 
@@ -47,9 +48,9 @@ export default function TelaGestao({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <LinearGradient
-        colors={["#000060", "#3232B5", "#00007D"]}
+        colors={[colors.primarySoft, colors.background]}
         style={styles.container}
       >
         <AppHeader
@@ -67,37 +68,40 @@ export default function TelaGestao({ navigation }: Props) {
             <Text style={styles.title}>Módulo de Gestão</Text>
             <Text style={styles.subtitle}>Área exclusiva do Gestor</Text>
 
+            {/*
             <Image
               source={require("../../assets/croqui4.png")}
               style={styles.imageCroqui}
               resizeMode="contain"
             />
+            */}
+
           </View>
 
           {/* BLOCO CENTRAL: Botões de Gestão */}
           <View style={styles.centerSection}>
             <Pressable style={styles.button} onPress={() => navigation.navigate("TelaCadastroUsuarios")}>
-              <Ionicons name="people" size={22} color="#fff" style={styles.icon} />
+              <Ionicons name="people" size={22} color={colors.white} style={styles.icon} />
               <Text style={styles.buttonText}>Usuários</Text>
             </Pressable>
 
             <Pressable style={styles.button} onPress={() => navigation.navigate("TelaCadastroClientes")}>
-              <Ionicons name="person-circle" size={22} color="#fff" style={styles.icon} />
+              <Ionicons name="person-circle" size={22} color={colors.white} style={styles.icon} />
               <Text style={styles.buttonText}>Clientes</Text>
             </Pressable>
 
             <Pressable style={styles.button} onPress={() => navigation.navigate("TelaCadastroEtapas")}>
-              <Ionicons name="construct" size={22} color="#fff" style={styles.icon} />
+              <Ionicons name="construct" size={22} color={colors.white} style={styles.icon} />
               <Text style={styles.buttonText}>Etapas</Text>
             </Pressable>
 
             <Pressable style={styles.button} onPress={() => navigation.navigate("TelaGestaoEtapas")}>
-              <Ionicons name="layers" size={22} color="#fff" style={styles.icon} />
+              <Ionicons name="layers" size={22} color={colors.white} style={styles.icon} />
               <Text style={styles.buttonText}>Gerenciar Etapas</Text>
             </Pressable>
 
             <Pressable style={styles.button} onPress={() => navigation.navigate("TelaCadastroProjetos")}>
-              <Ionicons name="folder-open" size={22} color="#fff" style={styles.icon} />
+              <Ionicons name="folder-open" size={22} color={colors.white} style={styles.icon} />
               <Text style={styles.buttonText}>Projetos</Text>
             </Pressable>
           </View>
@@ -130,27 +134,30 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 26,
-    color: "#FF8C00",
+    color: colors.primary,
     fontWeight: "700",
     marginBottom: 10,
+    textAlign: "center",
   },
   subtitle: {
-    fontSize: 16,
-    color: "#86EBFF",
+    fontSize: 15,
+    color: colors.textSecondary,
     fontWeight: "500",
+    marginBottom: 10,
+    textAlign: "center",
   },
   button: {
-    width: "60%",
+    width: "70%",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#00849e",
+    backgroundColor: colors.primary,
     borderRadius: 6,
     paddingVertical: 12,
     paddingHorizontal: 30,
-    marginVertical: 10,
+    marginVertical: 8,
   },
   icon: {
-    marginRight: 10,
+    marginRight: 12,
   },
   imageCroqui: {
     width: "100%",
@@ -159,7 +166,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   buttonText: {
-    color: "#fff",
+    color: colors.white,
     fontSize: 16,
     fontWeight: "600",
     textAlign: "center",

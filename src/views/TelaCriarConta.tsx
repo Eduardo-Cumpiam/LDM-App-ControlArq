@@ -13,6 +13,7 @@ import {
   Pressable,
   StyleSheet,
   KeyboardAvoidingView,
+  TouchableOpacity,
   Platform,
   View,
   Alert,
@@ -26,6 +27,8 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../services/firebaseConfig";
 import { useAuth } from "../context/AuthContext";
+import { globalStyles } from "../styles/globalStyles";
+import { colors } from "../styles/colors";
 
 type RootStackParamList = {
   TelaCriarConta: undefined;
@@ -86,8 +89,8 @@ export default function TelaCriarConta({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <LinearGradient colors={["#000060", "#3232B5", "#00007D"]} style={styles.container}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <LinearGradient colors={[colors.primarySoft, colors.background]} style={styles.container}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.contentWrapper}
@@ -102,47 +105,51 @@ export default function TelaCriarConta({ navigation }: Props) {
               <Text style={styles.title}>
                 Crie a sua conta para desfrutar das melhores possibilidades de gerenciamento.
               </Text>
+
+              {/*
               <Image
                 source={require("../../assets/croqui.png")}
                 style={styles.imageCroqui}
                 resizeMode="contain"
               />
+              */}
+
             </View>
 
             {/* BLOCO CENTRAL */}
             <View style={styles.formSection}>
-              <Text style={styles.subtitle}>NOME:</Text>
+              <Text style={globalStyles.label}>NOME:</Text>
               <TextInput
-                style={styles.input}
+                style={globalStyles.input}
                 value={nome}
                 onChangeText={setNome}
                 placeholder="Seu nome completo"
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.textLight}
               />
 
               {/* Campo: TELEFONE */}
-              <Text style={styles.subtitle}>TELEFONE / WHATSAPP:</Text>
+              <Text style={globalStyles.label}>TELEFONE / WHATSAPP:</Text>
               <TextInput
-                style={styles.input}
+                style={globalStyles.input}
                 value={telefone}
                 onChangeText={setTelefone}
                 keyboardType="phone-pad"
                 placeholder="Ex: 14999999999"
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.textLight}
               />
 
-              <Text style={styles.subtitle}>E-MAIL:</Text>
+              <Text style={globalStyles.label}>E-MAIL:</Text>
               <TextInput
-                style={styles.input}
+                style={globalStyles.input}
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 placeholder="seu-email@provedor.com"
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.textLight}
               />
 
-              <Text style={styles.subtitle}>SENHA:</Text>
+              <Text style={globalStyles.label}>SENHA:</Text>
               <View style={styles.passwordContainer}>
                 <TextInput
                   style={styles.passwordInput}
@@ -151,20 +158,32 @@ export default function TelaCriarConta({ navigation }: Props) {
                   onChangeText={setSenha}
                   autoCapitalize="none"
                   placeholder="Digite sua senha"
-                  placeholderTextColor="#999"
+                  placeholderTextColor={colors.textLight}
                 />
-                <Pressable onPress={() => setSenhaVisivel(!senhaVisivel)}>
+                <Pressable onPress={() => setSenhaVisivel(!senhaVisivel)} style={styles.eyeIcon}>
                   <Ionicons
                     name={senhaVisivel ? "eye-off" : "eye"}
                     size={22}
-                    color="#fff"
+                    color={colors.textSecondary}
                   />
                 </Pressable>
               </View>
 
+              <TouchableOpacity 
+                style={globalStyles.buttonPrimary} 
+                onPress={handleCriarConta}
+                activeOpacity={0.8}
+              >
+                <Text style={globalStyles.buttonPrimaryText}>Criar Conta</Text>
+              </TouchableOpacity>
+
+              {/*}
+
               <View style={styles.buttonContainer}>
                 <Button title="Criar" color="#00849e" onPress={handleCriarConta} />
               </View>
+
+              */}
             </View>
 
           </ScrollView>
@@ -189,12 +208,13 @@ const styles = StyleSheet.create({
   },
   formSection: {
     width: "100%",
+    height: "100%",
     justifyContent: "center",
     marginBottom: 20,
   },
   title: {
     fontSize: 18,
-    color: "#fff",
+    color: colors.textPrimary,
     textAlign: "center",
     marginBottom: 12,
     fontWeight: "600",
@@ -222,8 +242,9 @@ const styles = StyleSheet.create({
   },
   passwordInput: {
     flex: 1,
-    height: 44,
-    color: "#fff",
+    height: "100%",
+    color: colors.textPrimary,
+    fontSize: 16,
   },
   buttonContainer: {
     borderRadius: 6,
@@ -233,11 +254,15 @@ const styles = StyleSheet.create({
   passwordContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderColor: "#fff",
-    borderWidth: 2,
+    borderColor: colors.inputBorder,
+    borderWidth: 1,
     borderRadius: 6,
-    marginBottom: 15,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    marginBottom: 16,
+    backgroundColor: colors.inputBackground,
     paddingHorizontal: 12,
+    height: 48,
+  },
+  eyeIcon: {
+    padding: 4,
   },
 });

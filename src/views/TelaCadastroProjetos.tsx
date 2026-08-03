@@ -7,7 +7,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import {
   Text,
   TextInput,
-  Button,
   StyleSheet,
   Alert,
   ActivityIndicator,
@@ -16,6 +15,7 @@ import {
   ScrollView,
   View,
   TouchableOpacity,
+  FlatList,
 } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
@@ -25,7 +25,7 @@ import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { FlatList } from "react-native";
+
 import { useAuth } from "../context/AuthContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AppCopyrigth from "../components/AppCopyrigth";
@@ -33,7 +33,13 @@ import AppHeader from "../components/AppHeader";
 import { useBackHandlerLogout } from "../hooks/useBackHandlerLogout";
 import { RootStackParamList } from "../navigation/AppNavigator";
 
-type TelaCadastroProjetosNavigationProp = NativeStackNavigationProp<RootStackParamList, "TelaCadastroProjetos">;
+import { colors } from "../styles/colors";
+import { globalStyles } from "../styles/globalStyles";
+
+type TelaCadastroProjetosNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "TelaCadastroProjetos"
+>;
 
 type Props = {
   navigation: TelaCadastroProjetosNavigationProp;
@@ -41,9 +47,50 @@ type Props = {
 
 // Paleta fixa de cores hexadecimais para identificação visual dos projetos
 const PALETA_CORES = [
-  "#00aeff", "#00cc22", "#FF8C00", "#ff4444", "#86EBFF", "#E0AA3E", 
-  "#FF007F", "#9D00FF", "#00FF7F", "#FFD700", "#FF69B4", "#00FA9A", 
-  "#FF4500", "#ADFF2F", "#C0C0C0", "#FF1493", "#FFFFFF", "#000000",
+  // Vermelhos
+  "#FF1744",
+  "#ff4444",
+  "#FF4500",
+  "#FF6D00",
+  // Laranjas
+  "#FF9100",
+  "#FF8C00",
+  "#FFAB00",
+  // Amarelos
+  "#FFEA00",
+  "#FFD700",
+  "#E0AA3E",
+  // Verdes
+  "#ADFF2F",
+  "#76FF03",
+  "#00FF7F",
+  "#00E676",
+  "#00cc22",
+  "#69F0AE",
+  "#00FA9A",
+  "#00BFA5",
+  // Azuis
+  "#00BCD4",
+  "#18FFFF",
+  "#86EBFF",
+  "#2979FF",
+  "#00aeff",
+  "#3D5AFE",
+  // Violetas/Roxos
+  "#651FFF",
+  "#9D00FF",
+  "#D500F9",
+  "#B388FF",
+  // Rosas
+  "#FF4081",
+  "#F50057",
+  "#FF69B4",
+  "#FF1493",
+  "#FF007F",
+  // Neutros
+  "#C0C0C0",
+  "#FFFFFF",
+  "#000000",
 ];
 
 export default function TelaCadastroProjetos({ navigation }: Props) {
@@ -59,7 +106,7 @@ export default function TelaCadastroProjetos({ navigation }: Props) {
   const [horasOrcadas, setHorasOrcadas] = useState("");
   const [valorOrcamento, setValorOrcamento] = useState("");
   const [descricao, setDescricao] = useState("");
-  const [corSelecionada, setCorSelecionada] = useState(PALETA_CORES[0]); // ✅ Estado para gerenciar a cor
+  const [corSelecionada, setCorSelecionada] = useState(PALETA_CORES[0]);
   const [carregando, setCarregando] = useState(false);
 
   useBackHandlerLogout();
@@ -67,9 +114,9 @@ export default function TelaCadastroProjetos({ navigation }: Props) {
   useFocusEffect(
     useCallback(() => {
       if (!usuarioLogado) {
-        console.log('Usuário não está logado');
+        console.log("Usuário não está logado");
       }
-    }, [usuarioLogado])
+    }, [usuarioLogado]),
   );
 
   const handleLogout = async () => {
@@ -78,10 +125,12 @@ export default function TelaCadastroProjetos({ navigation }: Props) {
 
   if (!perfil || perfil.nivel_acesso !== "gestor") {
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#000060" }}>
-        <Text style={{ color: "#fff", fontSize: 16 }}>
-          Apenas gestores podem cadastrar projetos.
-        </Text>
+      <SafeAreaView style={globalStyles.container}>
+        <View style={styles.restrictedContainer}>
+          <Text style={styles.restrictedText}>
+            Apenas gestores podem cadastrar projetos.
+          </Text>
+        </View>
       </SafeAreaView>
     );
   }
@@ -104,7 +153,15 @@ export default function TelaCadastroProjetos({ navigation }: Props) {
   }, []);
 
   const handleSalvarProjeto = async () => {
-    if (!nomeProjeto || !clienteSelecionado || !dataInicio || !dataTermino || !horasOrcadas || !valorOrcamento || !descricao) {
+    if (
+      !nomeProjeto ||
+      !clienteSelecionado ||
+      !dataInicio ||
+      !dataTermino ||
+      !horasOrcadas ||
+      !valorOrcamento ||
+      !descricao
+    ) {
       Alert.alert("Atenção", "Preencha todos os campos.");
       return;
     }
@@ -128,7 +185,7 @@ export default function TelaCadastroProjetos({ navigation }: Props) {
         valor_gasto: 0,
         percentual_conclusao: 0,
         status: "ativo",
-        imagem_capa: "", 
+        imagem_capa: "",
         data_criacao: Timestamp.fromDate(new Date()),
       });
 
@@ -149,8 +206,11 @@ export default function TelaCadastroProjetos({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <LinearGradient colors={["#000060", "#3232B5", "#00007D"]} style={styles.container}>
+    <SafeAreaView style={globalStyles.container}>
+      <LinearGradient
+        colors={[colors.primarySoft, colors.background]}
+        style={styles.container}
+      >
         <AppHeader
           nomeUsuario={perfil?.nome}
           onLogout={handleLogout}
@@ -158,126 +218,185 @@ export default function TelaCadastroProjetos({ navigation }: Props) {
           onVoltar={() => navigation.navigate("TelaGestao")}
         />
 
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.contentWrapper}>
-          <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-            <View style={styles.headerSection}>
-              <Text style={styles.title}>Novo Projeto</Text>
-              <Text style={styles.description}>Insira as especificações do escopo para iniciar o monitoramento.</Text>
-            </View>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.contentWrapper}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <Text style={globalStyles.title}>Novo Projeto</Text>
+            <Text style={[globalStyles.description, styles.description]}>
+              Insira as especificações do escopo para iniciar o monitoramento.
+            </Text>
 
             <View style={styles.formSection}>
-              <Text style={styles.label}>Nome do Projeto:</Text>
-              <TextInput 
-                style={styles.input} 
-                value={nomeProjeto} 
-                onChangeText={setNomeProjeto} 
-                placeholder="Ex: Reforma Residencial Univem" 
-                placeholderTextColor="#999" 
+              <Text style={globalStyles.label}>Nome do Projeto:</Text>
+              <TextInput
+                style={globalStyles.input}
+                value={nomeProjeto}
+                onChangeText={setNomeProjeto}
+                placeholder="Ex: Reforma Residencial Univem"
+                placeholderTextColor={colors.textLight}
               />
 
-<Text style={styles.label}>Cor Identificadora do Projeto:</Text>
-<View style={styles.colorPaletteContainer}>
-  <FlatList
-    data={PALETA_CORES}
-    horizontal
-    showsHorizontalScrollIndicator={false}
-    keyExtractor={(item) => item}
-    contentContainerStyle={{ paddingVertical: 5, paddingHorizontal: 2 }}
-    renderItem={({ item: cor }) => (
-      <TouchableOpacity
-        onPress={() => setCorSelecionada(cor)}
-        style={[
-          styles.colorCircle,
-          { backgroundColor: cor },
-          corSelecionada === cor && styles.colorCircleSelected
-        ]}
-      />
-    )}
-  />
-</View>
+              <Text style={globalStyles.label}>
+                Cor Identificadora do Projeto:
+              </Text>
+              <View style={styles.colorPaletteContainer}>
+                <FlatList
+                  data={PALETA_CORES}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  keyExtractor={(item) => item}
+                  contentContainerStyle={{
+                    paddingVertical: 5,
+                    paddingHorizontal: 2,
+                  }}
+                  renderItem={({ item: cor }) => (
+                    <TouchableOpacity
+                      onPress={() => setCorSelecionada(cor)}
+                      activeOpacity={0.8}
+                      style={[
+                        styles.colorCircle,
+                        { backgroundColor: cor },
+                        corSelecionada === cor && styles.colorCircleSelected,
+                      ]}
+                    />
+                  )}
+                />
+              </View>
 
-              <Text style={styles.label}>Cliente Associado:</Text>
-              <View style={styles.pickerWrapper}>
-                <Picker selectedValue={clienteSelecionado} onValueChange={setClienteSelecionado} style={styles.picker}>
-                  <Picker.Item label="Selecione um cliente" value="" />
+              <Text style={globalStyles.label}>Cliente Associado:</Text>
+              <View style={globalStyles.pickerWrapper}>
+                <Picker
+                  selectedValue={clienteSelecionado}
+                  onValueChange={setClienteSelecionado}
+                  style={globalStyles.picker}
+                  dropdownIconColor={colors.primary}
+                >
+                  <Picker.Item
+                    label="Selecione um cliente"
+                    value=""
+                    color={colors.textLight}
+                  />
                   {clientes.map((c) => (
-                    <Picker.Item key={c.id} label={c.nome} value={c.id} />
+                    <Picker.Item
+                      key={c.id}
+                      label={c.nome}
+                      value={c.id}
+                      color={colors.textPrimary}
+                    />
                   ))}
                 </Picker>
               </View>
 
-              <Text style={styles.label}>Data Início:</Text>
-              <TouchableOpacity onPress={() => setShowInicio(true)} style={styles.input}>
-                <Text style={{ color: "#fff" }}>
-                  {dataInicio ? dataInicio.toLocaleDateString("pt-BR") : "Selecione a data"}
+              <Text style={globalStyles.label}>Data Início:</Text>
+              <TouchableOpacity
+                onPress={() => setShowInicio(true)}
+                style={styles.dateSelector}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    styles.dateText,
+                    !dataInicio && { color: colors.textLight },
+                  ]}
+                >
+                  {dataInicio
+                    ? dataInicio.toLocaleDateString("pt-BR")
+                    : "Selecione a data"}
                 </Text>
               </TouchableOpacity>
               {showInicio && (
-                <DateTimePicker 
-                  value={dataInicio || new Date()} 
-                  mode="date" 
-                  display="default" 
-                  onChange={(_, date) => { 
-                    setShowInicio(false); 
-                    if (date) setDataInicio(date); 
-                  }} 
+                <DateTimePicker
+                  value={dataInicio || new Date()}
+                  mode="date"
+                  display="default"
+                  onChange={(_, date) => {
+                    setShowInicio(false);
+                    if (date) setDataInicio(date);
+                  }}
                 />
               )}
 
-              <Text style={styles.label}>Data Término:</Text>
-              <TouchableOpacity onPress={() => setShowTermino(true)} style={styles.input}>
-                <Text style={{ color: "#fff" }}>
-                  {dataTermino ? dataTermino.toLocaleDateString("pt-BR") : "Selecione a data"}
+              <Text style={globalStyles.label}>Data Término:</Text>
+              <TouchableOpacity
+                onPress={() => setShowTermino(true)}
+                style={styles.dateSelector}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    styles.dateText,
+                    !dataTermino && { color: colors.textLight },
+                  ]}
+                >
+                  {dataTermino
+                    ? dataTermino.toLocaleDateString("pt-BR")
+                    : "Selecione a data"}
                 </Text>
               </TouchableOpacity>
               {showTermino && (
-                <DateTimePicker 
-                  value={dataTermino || new Date()} 
-                  mode="date" 
-                  display="default" 
-                  onChange={(_, date) => { 
-                    setShowTermino(false); 
-                    if (date) setDataTermino(date); 
-                  }} 
+                <DateTimePicker
+                  value={dataTermino || new Date()}
+                  mode="date"
+                  display="default"
+                  onChange={(_, date) => {
+                    setShowTermino(false);
+                    if (date) setDataTermino(date);
+                  }}
                 />
               )}
 
-              <Text style={styles.label}>Horas Orçadas:</Text>
-              <TextInput 
-                style={styles.input} 
-                value={horasOrcadas} 
-                onChangeText={setHorasOrcadas} 
-                placeholder="Ex: 120" 
-                placeholderTextColor="#999" 
-                keyboardType="numeric" 
+              <Text style={globalStyles.label}>Horas Orçadas:</Text>
+              <TextInput
+                style={globalStyles.input}
+                value={horasOrcadas}
+                onChangeText={setHorasOrcadas}
+                placeholder="Ex: 120"
+                placeholderTextColor={colors.textLight}
+                keyboardType="numeric"
               />
 
-              <Text style={styles.label}>Valor Total de Orçamento (R$):</Text>
-              <TextInput 
-                style={styles.input} 
-                value={valorOrcamento} 
-                onChangeText={setValorOrcamento} 
-                placeholder="Ex: 50000" 
-                placeholderTextColor="#999" 
-                keyboardType="numeric" 
+              <Text style={globalStyles.label}>
+                Valor Total de Orçamento (R$):
+              </Text>
+              <TextInput
+                style={globalStyles.input}
+                value={valorOrcamento}
+                onChangeText={setValorOrcamento}
+                placeholder="Ex: 50000"
+                placeholderTextColor={colors.textLight}
+                keyboardType="numeric"
               />
 
-              <Text style={styles.label}>Descrição / Escopo:</Text>
-              <TextInput 
-                style={[styles.input, styles.textArea]} 
-                value={descricao} 
-                onChangeText={setDescricao} 
-                placeholder="Detalhamento do escopo..." 
-                placeholderTextColor="#999" 
-                multiline 
+              <Text style={globalStyles.label}>Descrição / Escopo:</Text>
+              <TextInput
+                style={[globalStyles.input, styles.textArea]}
+                value={descricao}
+                onChangeText={setDescricao}
+                placeholder="Detalhamento do escopo..."
+                placeholderTextColor={colors.textLight}
+                multiline
               />
 
               {carregando ? (
-                <ActivityIndicator size="large" color="#86EBFF" style={{ marginVertical: 10 }} />
+                <ActivityIndicator
+                  size="large"
+                  color={colors.primary}
+                  style={{ marginVertical: 15 }}
+                />
               ) : (
-                <View style={styles.buttonContainer}>
-                  <Button title="Salvar Projeto" color="#00849e" onPress={handleSalvarProjeto} />
-                </View>
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={handleSalvarProjeto}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.saveButtonText}>Salvar Projeto</Text>
+                </TouchableOpacity>
               )}
             </View>
           </ScrollView>
@@ -289,88 +408,155 @@ export default function TelaCadastroProjetos({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { 
+    flex: 1 
+  },
+
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+
   contentWrapper: {
     flex: 1,
     paddingHorizontal: 25,
-    paddingVertical: 10
+    paddingVertical: 10,
   },
+
   headerSection: {
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10
+    marginBottom: 10,
   },
+
+  restrictedContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+
+  restrictedText: {
+    color: colors.textSecondary,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
   formSection: {
     width: "100%",
-    justifyContent: "center"
-  },
-  title: {
-    fontSize: 24,
-    color: "#fff",
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 3
-  },
-  description: {
-    fontSize: 13,
-    color: "#86EBFF",
-    textAlign: "center"
-  },
-  label: {
-    fontSize: 13,
-    color: "#fff",
-    marginBottom: 6,
-    fontWeight: "500",
-    marginTop: 2
-  },
-  input: {
-    height: 42,
-    borderColor: "#fff",
-    borderWidth: 2,
-    marginBottom: 12,
-    color: "#fff",
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    marginTop: 24,
     justifyContent: "center",
   },
+
+  title: {
+    fontSize: 24,
+    color: colors.primarySoft,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 3,
+  },
+
+  description: {
+    fontSize: 13,
+    color: colors.primaryLight,
+    textAlign: "center",
+  },
+
+  label: {
+    fontSize: 13,
+    color: colors.white,
+    marginBottom: 6,
+    fontWeight: "500",
+    marginTop: 2,
+  },
+
+  input: {
+    height: 42,
+    borderColor: colors.white,
+    borderWidth: 2,
+    marginBottom: 12,
+    color: colors.white,
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    backgroundColor: colors.textPrimary,
+    justifyContent: "center",
+  },
+
   textArea: {
     height: 70,
     paddingTop: 8,
-    textAlignVertical: "top"
+    textAlignVertical: "top",
   },
+
   pickerWrapper: {
     borderWidth: 2,
-    borderColor: "#fff",
+    borderColor: colors.white,
     borderRadius: 6,
     marginBottom: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: colors.textPrimary,
   },
+
   picker: {
-    color: "#fff"
+    color: colors.white,
   },
-colorPaletteContainer: {
+
+  colorPaletteContainer: {
     marginBottom: 16,
-    height: 45, // Garante que a lista não seja cortada
+    height: 48,
     justifyContent: "center",
   },
+
   colorCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.3)",
-    marginRight: 12, // Espaço entre as cores para o deslize lateral
+    borderColor: colors.cardBorder,
+    marginRight: 12,
   },
+
   colorCircleSelected: {
-    borderColor: "#FFF",
+    borderColor: colors.primary,
     borderWidth: 3,
     transform: [{ scale: 1.15 }],
   },
+
+  dateSelector: {
+    height: 48,
+    backgroundColor: colors.inputBackground,
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
+    borderRadius: 8,
+    justifyContent: "center",
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+
+  dateText: {
+    fontSize: 15,
+    color: colors.textPrimary,
+  },
+
   buttonContainer: {
     borderRadius: 6,
     overflow: "hidden",
     marginTop: 8,
-    marginBottom: 15
+    marginBottom: 15,
+  },
+
+  saveButton: {
+    backgroundColor: colors.primary,
+    height: 48,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+    marginBottom: 15,
+  },
+
+  saveButtonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

@@ -7,7 +7,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import {
   Text,
   TextInput,
-  Button,
+  TouchableOpacity,
   StyleSheet,
   Alert,
   KeyboardAvoidingView,
@@ -26,17 +26,16 @@ import AppHeader from "../components/AppHeader";
 import AppCopyrigth from "../components/AppCopyrigth";
 import { useBackHandlerLogout } from "../hooks/useBackHandlerLogout";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import { colors } from "../styles/colors";
 
 // Firebase
 import { db } from "../services/firebaseConfig";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  Timestamp,
-} from "firebase/firestore";
+import { collection, addDoc, getDocs, Timestamp } from "firebase/firestore";
 
-type TelaCadastroEtapasNavigationProp = NativeStackNavigationProp<RootStackParamList, "TelaCadastroEtapas">;
+type TelaCadastroEtapasNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "TelaCadastroEtapas"
+>;
 
 type Props = {
   navigation: TelaCadastroEtapasNavigationProp;
@@ -48,7 +47,6 @@ interface Etapa {
 }
 
 export default function TelaCadastroEtapas({ navigation }: Props) {
-
   const { usuarioLogado, perfil, logout } = useAuth();
 
   const [nomeEtapa, setNomeEtapa] = useState("");
@@ -67,83 +65,25 @@ export default function TelaCadastroEtapas({ navigation }: Props) {
   useFocusEffect(
     useCallback(() => {
       if (!usuarioLogado) {
-        // O NavigatorInterno vai renderizar o stack de login automaticamente
-        console.log('Usuário não está logado');
+        console.log("Usuário não está logado");
       }
-    }, [usuarioLogado])
+    }, [usuarioLogado]),
   );
-
-  const handleLogout = async () => {
-    await logout();
-    // ⚠️ NÃO navegue para TelaLogin
-    // O NavigatorInterno vai renderizar o stack de login automaticamente
-  };
-
-  // ====================================================
-  // Segurança
-  // ====================================================
-
-  if (!perfil || perfil.nivel_acesso !== "gestor") {
-    return (
-      <SafeAreaView
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#000060",
-        }}
-      >
-        <Text style={{ color: "#fff" }}>
-          Acesso restrito a gestores.
-        </Text>
-      </SafeAreaView>
-    );
-  }
 
   // ====================================================
   // Carregar etapas uma única vez
   // ====================================================
-
   useEffect(() => {
     carregarEtapas();
   }, []);
 
-  const carregarEtapas = async () => {
-    try {
-      const snapshot = await getDocs(
-        collection(db, "etapas")
-      );
-
-      const lista: Etapa[] = [];
-
-      snapshot.forEach((docSnap) => {
-        const dados = docSnap.data();
-
-        lista.push({
-          id: docSnap.id,
-          nome_etapa: dados.nome_etapa || "",
-        });
-      });
-
-      setEtapas(lista);
-    } catch (error) {
-      Alert.alert(
-        "Erro",
-        "Não foi possível carregar as etapas."
-      );
-    }
-  };
-
   // ====================================================
   // Sugestões locais
   // ====================================================
-
   useEffect(() => {
     if (nomeEtapa.trim().length > 0) {
       const filtradas = etapas.filter((e) =>
-        e.nome_etapa
-          .toLowerCase()
-          .includes(nomeEtapa.toLowerCase())
+        e.nome_etapa.toLowerCase().includes(nomeEtapa.toLowerCase()),
       );
 
       setSugestoes(filtradas);
@@ -152,62 +92,66 @@ export default function TelaCadastroEtapas({ navigation }: Props) {
     }
   }, [nomeEtapa, etapas]);
 
+  // ✅ 2. Métodos e funções auxiliares
+  const carregarEtapas = async () => {
+    try {
+      const snapshot = await getDocs(collection(db, "etapas"));
+      const lista: Etapa[] = [];
+
+      snapshot.forEach((docSnap) => {
+        const dados = docSnap.data();
+        lista.push({
+          id: docSnap.id,
+          nome_etapa: dados.nome_etapa || "",
+        });
+      });
+
+      setEtapas(lista);
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível carregar as etapas.");
+    }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
   // ====================================================
   // Salvar
   // ====================================================
-
   const handleSalvarEtapa = async () => {
     if (!nomeEtapa.trim()) {
-      Alert.alert(
-        "Atenção",
-        "Informe o nome da etapa."
-      );
+      Alert.alert("Atenção", "Informe o nome da etapa.");
       return;
     }
 
     if (!ordem.trim()) {
-      Alert.alert(
-        "Atenção",
-        "Informe a ordem da etapa."
-      );
+      Alert.alert("Atenção", "Informe a ordem da etapa.");
       return;
     }
 
     const existe = etapas.some(
       (e) =>
-        e.nome_etapa.trim().toLowerCase() ===
-        nomeEtapa.trim().toLowerCase()
+        e.nome_etapa.trim().toLowerCase() === nomeEtapa.trim().toLowerCase(),
     );
 
     if (existe) {
-      Alert.alert(
-        "Atenção",
-        "Já existe uma etapa com este nome."
-      );
+      Alert.alert("Atenção", "Já existe uma etapa com este nome.");
       return;
     }
 
     try {
       setCarregando(true);
 
-      const docRef = await addDoc(
-        collection(db, "etapas"),
-        {
-          nome_etapa: nomeEtapa.trim(),
-          descricao: descricao.trim(),
-          ordem: Number(ordem),
-
-          status: "ativo",
-
-          data_cadastro:
-            Timestamp.fromDate(new Date()),
-
-          data_atualizacao:
-            Timestamp.fromDate(new Date()),
-
-          gestor_id: usuarioLogado?.uid || "",
-        }
-      );
+      const docRef = await addDoc(collection(db, "etapas"), {
+        nome_etapa: nomeEtapa.trim(),
+        descricao: descricao.trim(),
+        ordem: Number(ordem),
+        status: "ativo",
+        data_cadastro: Timestamp.fromDate(new Date()),
+        data_atualizacao: Timestamp.fromDate(new Date()),
+        gestor_id: usuarioLogado?.uid || "",
+      });
 
       setEtapas((prev) => [
         ...prev,
@@ -217,30 +161,40 @@ export default function TelaCadastroEtapas({ navigation }: Props) {
         },
       ]);
 
-      Alert.alert(
-        "Sucesso",
-        "Etapa cadastrada com sucesso."
-      );
+      Alert.alert("Sucesso", "Etapa cadastrada com sucesso.");
 
       setNomeEtapa("");
       setDescricao("");
       setOrdem("");
       setSugestoes([]);
     } catch (error: any) {
-      Alert.alert(
-        "Erro",
-        error.message ||
-          "Não foi possível salvar."
-      );
+      Alert.alert("Erro", error.message || "Não foi possível salvar.");
     } finally {
       setCarregando(false);
     }
   };
 
+  // ====================================================
+  // Segurança
+  // ====================================================
+  if (!perfil || perfil.nivel_acesso !== "gestor") {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+        <LinearGradient
+          colors={[colors.primarySoft, colors.background]}
+          style={styles.containerRestrito}
+        >
+          <Text style={styles.textoRestrito}>Acesso restrito a gestores.</Text>
+        </LinearGradient>
+      </SafeAreaView>
+    );
+  }
+
+  // ✅ 4. Return Principal da Interface
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <LinearGradient 
-        colors={["#000060", "#3232B5", "#00007D"]}
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <LinearGradient
+        colors={[colors.primarySoft, colors.background]}
         style={styles.container}
       >
         <AppHeader
@@ -259,69 +213,68 @@ export default function TelaCadastroEtapas({ navigation }: Props) {
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={styles.headerSection}>
               <Text style={styles.title}>Nova Etapa</Text>
-              <Text style={styles.description}>Cadastro de etapas utilizadas nos projetos.</Text>
+              <Text style={styles.description}>
+                Cadastro de etapas utilizadas nos projetos.
+              </Text>
             </View>
 
-            <Text style={styles.label}>Nome da Etapa</Text>
-
-            <TextInput
-              style={styles.input}
-              value={nomeEtapa}
-              onChangeText={setNomeEtapa}
-              placeholder="Ex.: Fundação"
-              placeholderTextColor="#999"
-            />
-
-            {sugestoes.length > 0 && (
-              <View style={styles.sugestoesWrapper}>
-                {sugestoes.map((item) => (
-                  <Text
-                    key={item.id}
-                    style={styles.sugestao}
-                  >
-                    {item.nome_etapa}
-                  </Text>
-                ))}
-              </View>
-            )}
-
-            <Text style={styles.label}>Descrição</Text>
-
-            <TextInput
-              style={[styles.input, { height: 100 }]}
-              multiline
-              value={descricao}
-              onChangeText={setDescricao}
-              placeholder="Descrição da etapa"
-              placeholderTextColor="#999"
-            />
-
-            <Text style={styles.label}>Ordem</Text>
-
-            <TextInput
-              style={styles.input}
-              value={ordem}
-              onChangeText={setOrdem}
-              keyboardType="numeric"
-              placeholder="1"
-              placeholderTextColor="#999"
-            />
-
-            {carregando ? (
-              <ActivityIndicator
-                size="large"
-                color="#86EBFF"
-                style={{ marginTop: 20 }}
+            <View style={styles.formSection}>
+              <Text style={styles.label}>Nome da Etapa</Text>
+              <TextInput
+                style={styles.input}
+                value={nomeEtapa}
+                onChangeText={setNomeEtapa}
+                placeholder="Ex.: Fundação"
+                placeholderTextColor={colors.textLight}
               />
-            ) : (
-              <View style={styles.buttonContainer}>
-                <Button
-                  title="Salvar Etapa"
-                  color="#00849e"
-                  onPress={handleSalvarEtapa}
+
+              {sugestoes.length > 0 && (
+                <View style={styles.sugestoesWrapper}>
+                  {sugestoes.map((item) => (
+                    <Text key={item.id} style={styles.sugestao}>
+                      {item.nome_etapa}
+                    </Text>
+                  ))}
+                </View>
+              )}
+
+              <Text style={styles.label}>Descrição</Text>
+
+              <TextInput
+                style={[styles.input, { height: 100 }]}
+                multiline
+                value={descricao}
+                onChangeText={setDescricao}
+                placeholder="Descrição detalhada da etapa..."
+                placeholderTextColor={colors.textLight}
+              />
+
+              <Text style={styles.label}>Ordem de Execução:</Text>
+              <TextInput
+                style={styles.input}
+                value={ordem}
+                onChangeText={setOrdem}
+                keyboardType="numeric"
+                placeholder="Ex: 1"
+                placeholderTextColor={colors.textLight}
+              />
+
+              {carregando ? (
+                <ActivityIndicator
+                  size="large"
+                  color={colors.primary}
+                  style={{ marginVertical: 15 }}
                 />
-              </View>
-            )}
+              ) : (
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={handleSalvarEtapa}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.saveButtonText}>Salvar Etapa</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </ScrollView>
 
           <AppCopyrigth />
@@ -337,60 +290,96 @@ const styles = StyleSheet.create({
   contentWrapper: {
     flex: 1,
     paddingHorizontal: 25,
+    justifyContent: "space-between",
     paddingVertical: 10,
+  },
+  scrollContent: {
+    paddingBottom: 20,
+  },
+  containerRestrito: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  textoRestrito: {
+    color: colors.textPrimary,
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
   },
 
   headerSection: {
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 15,
+  },
+  formSection: {
+    width: "100%",
+    flex: 1,
   },
 
   title: {
     fontSize: 24,
-    color: "#fff",
-    fontWeight: "bold",
+    color: colors.textPrimary,
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: 4,
   },
 
   description: {
     fontSize: 13,
-    color: "#86EBFF",
+    color: colors.textSecondary,
     textAlign: "center",
-    marginTop: 5,
   },
 
   label: {
-    color: "#fff",
-    marginBottom: 5,
+    fontSize: 13,
+    color: colors.textPrimary,
+    marginBottom: 6,
     fontWeight: "600",
   },
 
   input: {
-    borderWidth: 2,
-    borderColor: "#fff",
-    borderRadius: 6,
+    height: 44,
+    borderColor: colors.cardBorder,
+    borderWidth: 1,
+    marginBottom: 14,
+    color: colors.textPrimary,
+    borderRadius: 8,
     paddingHorizontal: 12,
-    color: "#fff",
-    marginBottom: 12,
-    backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: colors.inputBackground,
   },
 
-  buttonContainer: {
+  textArea: {
+    height: 90,
+    paddingTop: 10,
+    textAlignVertical: "top",
+  },
+  saveButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
     marginTop: 10,
-    borderRadius: 6,
-    overflow: "hidden",
+  },
+  saveButtonText: {
+    color: colors.white || "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
   },
 
   sugestoesWrapper: {
-    backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: colors.surface,
+    borderColor: colors.cardBorder,
     borderWidth: 1,
-    borderColor: "#86EBFF",
-    borderRadius: 6,
-    padding: 8,
-    marginBottom: 12,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 14,
   },
 
   sugestao: {
-    color: "#86EBFF",
-    paddingVertical: 2,
+    fontSize: 13,
+    color: colors.warning,
+    paddingVertical: 3,
   },
 });

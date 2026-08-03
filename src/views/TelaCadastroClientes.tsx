@@ -7,7 +7,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import {
   Text,
   TextInput,
-  Button,
+  TouchableOpacity,
   StyleSheet,
   Alert,
   KeyboardAvoidingView,
@@ -29,8 +29,12 @@ import AppCopyrigth from "../components/AppCopyrigth";
 import AppHeader from "../components/AppHeader";
 import { useBackHandlerLogout } from "../hooks/useBackHandlerLogout";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import { colors } from "../styles/colors";
 
-type TelaCadastroClientesNavigationProp = NativeStackNavigationProp<RootStackParamList, "TelaCadastroClientes">;
+type TelaCadastroClientesNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "TelaCadastroClientes"
+>;
 
 type Props = {
   navigation: TelaCadastroClientesNavigationProp;
@@ -61,27 +65,10 @@ export default function TelaCadastroClientes({ navigation }: Props) {
     useCallback(() => {
       if (!usuarioLogado) {
         // O NavigatorInterno vai renderizar o stack de login automaticamente
-        console.log('Usuário não está logado');
+        console.log("Usuário não está logado");
       }
-    }, [usuarioLogado])
+    }, [usuarioLogado]),
   );
-
-  const handleLogout = async () => {
-    await logout();
-    // ⚠️ NÃO navegue para TelaLogin
-    // O NavigatorInterno vai renderizar o stack de login automaticamente
-  };
-
-  // Bloqueio de acesso para não-gestores
-  if (!perfil || perfil.nivel_acesso !== "gestor") {
-    return (
-      <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ color: "#fff", fontSize: 16 }}>
-          Acesso restrito a gestores.
-        </Text>
-      </SafeAreaView>
-    );
-  }
 
   // Carregar clientes uma vez e manter em cache
   useEffect(() => {
@@ -100,13 +87,17 @@ export default function TelaCadastroClientes({ navigation }: Props) {
   useEffect(() => {
     if (nome.trim().length > 0) {
       const filtrados = clientes.filter((c) =>
-        c.nome.toLowerCase().includes(nome.toLowerCase())
+        c.nome.toLowerCase().includes(nome.toLowerCase()),
       );
       setSugestoes(filtrados);
     } else {
       setSugestoes([]);
     }
   }, [nome, clientes]);
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   const handleSalvarCliente = async () => {
     if (!nome || !tipoPessoa || !endereco) {
@@ -126,7 +117,7 @@ export default function TelaCadastroClientes({ navigation }: Props) {
 
     // Validação final contra duplicidade
     const existe = clientes.some(
-      (c) => c.nome.toLowerCase() === nome.toLowerCase()
+      (c) => c.nome.toLowerCase() === nome.toLowerCase(),
     );
     if (existe) {
       Alert.alert("Atenção", "Já existe um cliente com este nome.");
@@ -159,9 +150,26 @@ export default function TelaCadastroClientes({ navigation }: Props) {
     }
   };
 
+  // Bloqueio de acesso para não-gestores
+  if (!perfil || perfil.nivel_acesso !== "gestor") {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+        <LinearGradient
+          colors={[colors.primarySoft, colors.background]}
+          style={styles.containerRestrito}
+        >
+          <Text style={styles.textoRestrito}>Acesso restrito a gestores.</Text>
+        </LinearGradient>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <LinearGradient colors={["#000060", "#3232B5", "#00007D"]} style={styles.container}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <LinearGradient
+        colors={[colors.primarySoft, colors.background]}
+        style={styles.container}
+      >
         <AppHeader
           nomeUsuario={perfil?.nome}
           onLogout={handleLogout}
@@ -171,11 +179,19 @@ export default function TelaCadastroClientes({ navigation }: Props) {
           }}
         />
 
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.contentWrapper}>
-          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.contentWrapper}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
             <View style={styles.headerSection}>
               <Text style={styles.title}>Novo Cliente</Text>
-              <Text style={styles.description}>Cadastre os dados do cliente para vincular aos projetos.</Text>
+              <Text style={styles.description}>
+                Cadastre os dados do cliente para vincular aos projetos.
+              </Text>
             </View>
 
             <View style={styles.formSection}>
@@ -185,7 +201,7 @@ export default function TelaCadastroClientes({ navigation }: Props) {
                 value={nome}
                 onChangeText={setNome}
                 placeholder="Ex: João da Silva / Construtora XYZ"
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.textLight}
               />
 
               {/* Sugestões de clientes já cadastrados */}
@@ -201,10 +217,29 @@ export default function TelaCadastroClientes({ navigation }: Props) {
 
               <Text style={styles.label}>Tipo de Pessoa:</Text>
               <View style={styles.pickerWrapper}>
-                <Picker selectedValue={tipoPessoa} onValueChange={setTipoPessoa} style={styles.picker}>
-                  <Picker.Item label="Selecione" value="" />
-                  <Picker.Item label="Pessoa Física" value="fisica" />
-                  <Picker.Item label="Pessoa Jurídica" value="juridica" />
+                <Picker
+                  selectedValue={tipoPessoa}
+                  onValueChange={(val) =>
+                    setTipoPessoa(val as "fisica" | "juridica" | "")
+                  }
+                  style={styles.picker}
+                  dropdownIconColor={colors.primary}
+                >
+                  <Picker.Item
+                    label="Selecione..."
+                    value=""
+                    color={colors.textLight}
+                  />
+                  <Picker.Item
+                    label="Pessoa Física"
+                    value="fisica"
+                    color={colors.textPrimary}
+                  />
+                  <Picker.Item
+                    label="Pessoa Jurídica"
+                    value="juridica"
+                    color={colors.textPrimary}
+                  />
                 </Picker>
               </View>
 
@@ -216,7 +251,7 @@ export default function TelaCadastroClientes({ navigation }: Props) {
                     value={cpf}
                     onChangeText={setCpf}
                     placeholder="000.000.000-00"
-                    placeholderTextColor="#999"
+                    placeholderTextColor={colors.textLight}
                     keyboardType="numeric"
                   />
                 </>
@@ -230,7 +265,7 @@ export default function TelaCadastroClientes({ navigation }: Props) {
                     value={cnpj}
                     onChangeText={setCnpj}
                     placeholder="00.000.000/0000-00"
-                    placeholderTextColor="#999"
+                    placeholderTextColor={colors.textLight}
                     keyboardType="numeric"
                   />
                 </>
@@ -242,15 +277,23 @@ export default function TelaCadastroClientes({ navigation }: Props) {
                 value={endereco}
                 onChangeText={setEndereco}
                 placeholder="Rua, número, bairro, cidade"
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.textLight}
               />
 
               {carregando ? (
-                <ActivityIndicator size="large" color="#86EBFF" style={{ marginVertical: 10 }} />
+                <ActivityIndicator
+                  size="large"
+                  color={colors.primary}
+                  style={{ marginVertical: 15 }}
+                />
               ) : (
-                <View style={styles.buttonContainer}>
-                  <Button title="Salvar Cliente" color="#00849e" onPress={handleSalvarCliente} />
-                </View>
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={handleSalvarCliente}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.saveButtonText}>Salvar Cliente</Text>
+                </TouchableOpacity>
               )}
             </View>
           </ScrollView>
@@ -264,45 +307,97 @@ export default function TelaCadastroClientes({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  contentWrapper: { flex: 1, paddingHorizontal: 25, justifyContent: "space-between", paddingVertical: 10 },
-  scrollContent: { paddingBottom: 20 },
-  headerSection: { alignItems: "center", marginBottom: 15 },
-  formSection: { width: "100%", flex: 1 },
-
-  title: { fontSize: 24, color: "#fff", fontWeight: "bold", textAlign: "center", marginBottom: 3 },
-  description: { fontSize: 13, color: "#86EBFF", textAlign: "center" },
-  label: { fontSize: 13, color: "#fff", marginBottom: 4, fontWeight: "500" },
-  input: {
-    height: 42,
-    borderColor: "#fff",
-    borderWidth: 2,
-    marginBottom: 12,
-    color: "#fff",
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+  contentWrapper: {
+    flex: 1,
+    paddingHorizontal: 25,
+    justifyContent: "space-between",
+    paddingVertical: 10,
+  },
+  scrollContent: {
+    paddingBottom: 20,
+  },
+  containerRestrito: {
+    flex: 1,
     justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  textoRestrito: {
+    color: colors.textPrimary,
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  headerSection: {
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  formSection: {
+    width: "100%",
+    flex: 1,
+  },
+  title: {
+    fontSize: 24,
+    color: colors.textPrimary,
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: 4,
+  },
+  description: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    textAlign: "center",
+  },
+  label: {
+    fontSize: 13,
+    color: colors.textPrimary,
+    marginBottom: 6,
+    fontWeight: "600",
+  },
+  input: {
+    height: 44,
+    borderColor: colors.cardBorder,
+    borderWidth: 1,
+    marginBottom: 14,
+    color: colors.textPrimary,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    backgroundColor: colors.inputBackground,
   },
   pickerWrapper: {
-    borderWidth: 2,
-    borderColor: "#fff",
-    borderRadius: 6,
-    marginBottom: 15,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-  },
-  picker: { color: "#fff" },
-  buttonContainer: { borderRadius: 6, overflow: "hidden", marginTop: 5 },
-  sugestoesWrapper: {
-    backgroundColor: "rgba(255,255,255,0.05)",
-    borderColor: "#86EBFF",
     borderWidth: 1,
-    borderRadius: 6,
-    padding: 8,
-    marginBottom: 12,
+    borderColor: colors.cardBorder,
+    borderRadius: 8,
+    marginBottom: 14,
+    backgroundColor: colors.inputBackground,
+    overflow: "hidden",
+  },
+  picker: {
+    color: colors.textPrimary,
+  },
+  saveButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  saveButtonText: {
+    color: colors.white,
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  sugestoesWrapper: {
+    backgroundColor: colors.surface,
+    borderColor: colors.cardBorder,
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 14,
   },
   sugestao: {
     fontSize: 13,
-    color: "#86EBFF",
-    paddingVertical: 2,
+    color: colors.warning,
+    paddingVertical: 3,
   },
 });

@@ -7,6 +7,8 @@
 // ====================================================================================================================
 
 import React, { useState, useEffect } from "react";
+import AppCopyrigth from "../components/AppCopyrigth";
+
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   Text,
@@ -26,7 +28,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useAuth } from "../context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
-import AppCopyrigth from "../components/AppCopyrigth";
+import { colors } from "../styles/colors";
 
 // Firebase Auth
 import { sendPasswordResetEmail } from "firebase/auth";
@@ -104,8 +106,8 @@ export default function TelaLogin({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <LinearGradient colors={["#000060", "#3232B5", "#00007D"]} style={styles.container}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <LinearGradient colors={[colors.primarySoft, colors.background]} style={styles.container}>
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : "padding"}
@@ -122,11 +124,14 @@ export default function TelaLogin({ navigation }: Props) {
                 <Text style={styles.title2}>
                   Controle para seus projetos de arquitetura na palma da sua mão.
                 </Text>
+                {
+                /*
                 <Image
                   source={require("../../assets/croqui4.png")}
                   style={styles.imageCroqui}
                   resizeMode="contain"
-                />
+                />*/
+                }
               </View>
 
               {/* BLOCO CENTRAL */}
@@ -139,7 +144,7 @@ export default function TelaLogin({ navigation }: Props) {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   placeholder="seu-email@provedor.com"
-                  placeholderTextColor="#999"
+                  placeholderTextColor={colors.textLight}
                 />
 
                 <Text style={styles.subtitle}>SENHA:</Text>
@@ -151,24 +156,24 @@ export default function TelaLogin({ navigation }: Props) {
                     onChangeText={setSenha}
                     autoCapitalize="none"
                     placeholder="******"
-                    placeholderTextColor="#999"
+                    placeholderTextColor={colors.textLight}
                   />
                   <Pressable onPress={() => setSenhaVisivel(!senhaVisivel)}>
                     <Ionicons
                       name={senhaVisivel ? "eye-off" : "eye"}
                       size={22}
-                      color="#fff"
+                      color={colors.textSecondary}
                       style={{ marginLeft: 8 }}
                     />
                   </Pressable>
                 </View>
 
                 {carregandoInterno ? (
-                  <ActivityIndicator size="large" color="#86EBFF" style={{ marginVertical: 10 }} />
+                  <ActivityIndicator size="large" color={colors.primary} style={{ marginVertical: 10 }} />
                 ) : (
                   <>
                     <View style={styles.buttonContainer}>
-                      <Button title="Entrar" color="#00849e" onPress={handleLogin} />
+                      <Button title="Entrar" color={colors.primary} onPress={handleLogin} />
                     </View>
 
                     <View style={styles.buttonContainer}>
@@ -225,7 +230,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 25,
-    color: "#fff",
+    color: colors.primary,
     textAlign: "center",
     marginBottom: 15,
     fontWeight: "600",
@@ -234,7 +239,7 @@ const styles = StyleSheet.create({
   title2: {
     paddingTop: 20,
     fontSize: 18,
-    color: "#fff",
+    color: colors.textSecondary,
     textAlign: "center",
     marginBottom: 15,
     fontWeight: "600",
@@ -248,60 +253,60 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: "#fff",
+    color: colors.textPrimary,
     marginBottom: 5,
     fontWeight: "500",
   },
   input: {
     height: 44,
-    borderColor: "#fff",
+    borderColor: colors.cardBorder,
     borderWidth: 2,
     marginBottom: 15,
-    color: "#fff",
+    color: colors.textPrimary,
     borderRadius: 6,
     paddingHorizontal: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: colors.surface,
   },
   passwordContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderColor: "#fff",
+    borderColor: colors.cardBorder,
     borderWidth: 2,
     borderRadius: 6,
     marginBottom: 15,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: colors.surface,
     paddingHorizontal: 12,
   },
   inputSenha: {
     flex: 1,
     height: 44,
-    color: "#fff",
+    color: colors.textPrimary,
   },
   linkSenha: {
     fontSize: 15,
-    color: "#FFD700",
+    color: colors.primary,
     textAlign: "center",
     marginTop: 10,
     fontWeight: "600",
   },
   buttonContainer: {
     width: "60%",
-    height: 45,
+    height: 60,
     alignSelf: "center",
     borderRadius: 6,
-    overflow: "hidden",
+    //overflow: "hidden",
     marginTop: 5,
     paddingBottom: 5,
   },
   linkDestaque: {
-    color: "#FFD700",
+    color: colors.primary,
     fontWeight: "bold",
     textDecorationLine: "underline",
   },
   footerLink: {
     paddingTop: 10,
     fontSize: 15,
-    color: "#f5f2f2",
+    color: colors.textSecondary,
     textAlign: "center",
     marginBottom: 15,
     textDecorationLine: "none",

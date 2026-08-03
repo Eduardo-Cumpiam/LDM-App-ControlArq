@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { Text, TouchableOpacity, View, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { globalStyles } from '../styles/globalStyles';
+import { colors } from '../styles/colors';
 
 interface SeletorDataHoraProps {
   rotulo: string;
@@ -67,6 +68,7 @@ export default function SeletorDataHora({
             is24Hour={modo === 'time'}
             display="default"
             onChange={handleChange}
+            accentColor={colors.primary}
           />
         )}
       </>
@@ -88,7 +90,8 @@ export default function SeletorDataHora({
           is24Hour={modo === 'time'}
           display="spinner"
           onChange={handleChange}
-          style={{ backgroundColor: 'white' }}
+          accentColor={colors.primary}
+          style={{ backgroundColor: colors.surface }}
         />
       )}
     </>

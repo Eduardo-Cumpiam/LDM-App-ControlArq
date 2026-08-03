@@ -6,6 +6,7 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { colors } from "../styles/colors";
 
 interface AppHeaderProps {
   nomeUsuario?: string;
@@ -26,14 +27,14 @@ export default function AppHeader({
       <View style={styles.leftSection}>
         {mostrarVoltar && onVoltar && (
           <TouchableOpacity onPress={onVoltar} style={styles.backButton} activeOpacity={0.7}>
-            <Ionicons name="arrow-back-outline" size={24} color="#86EBFF" />
+            <Ionicons name="arrow-back-outline" size={24} color={colors.primary} />
           </TouchableOpacity>
         )}
         <Text style={styles.titulo}>{nomeUsuario ?? "Usuário"}</Text>
       </View>
 
-      <TouchableOpacity onPress={onLogout} activeOpacity={0.7}>
-        <Ionicons name="log-out-outline" size={28} color="#FF8C00" />
+      <TouchableOpacity onPress={onLogout} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+        <Ionicons name="log-out-outline" size={28} color={colors.danger} />
       </TouchableOpacity>
     </View>
   );
@@ -44,20 +45,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 5,
   },
   leftSection: {
     flexDirection: "row",
     alignItems: "center",
   },
   backButton: {
-    marginRight: 10,
+    marginRight: 8,
     padding: 4,
   },
   titulo: {
     fontSize: 14,
     paddingLeft: 20,
     fontWeight: "bold",
-    color: "#FF8C00",
+    color: colors.warning,
   },
 });

@@ -1,11 +1,15 @@
 // App.tsx
 // Arquivo principal do aplicativo
 // Para rodar o aplicativo, use o comando: npm start ou npx expo start
-//===============================================================
+// Para rodar num navegador, use o comando: npm run web ou npx expo start --web num segundo terminal diferente
+//===================================================================================================================
 
 import React, { useEffect, useState } from "react";
+
 import { Image, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { colors } from "./src/styles/colors";
+
 import * as SplashScreen from "expo-splash-screen";
 import AppNavigator from "./src/navigation/AppNavigator";
 
@@ -27,10 +31,9 @@ export default function App() {
   if (!ready) {
     return (
       <LinearGradient
-        colors={["#000060", "#3232B5", "#00007D"]}
+        colors={[colors.primary, colors.primaryLight, colors.background]}
         style={styles.container}
       >
-        <Image source={require("./assets/logo.png")} style={styles.logo} />
       </LinearGradient>
     );
   }

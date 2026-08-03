@@ -22,6 +22,7 @@ import AppHeader from "../components/AppHeader";
 // Contexto
 import { useAuth } from "../context/AuthContext";
 import { useBackHandlerLogout } from "../hooks/useBackHandlerLogout";
+import { colors } from "../styles/colors";
 
 // Firebase
 import { db } from "../services/firebaseConfig";
@@ -68,7 +69,7 @@ export default function TelaProjetos() {
           listaProjetos.push({
             id: doc.id,
             nome_projeto: dados.nome_projeto || "Sem nome_projeto",
-            cor_projeto: dados.cor_projeto || "#86EBFF",
+            cor_projeto: dados.cor_projeto || colors.primary,
           });
         });
         setProjetos(listaProjetos);
@@ -112,9 +113,9 @@ export default function TelaProjetos() {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <LinearGradient
-        colors={["#000060", "#3232B5", "#00007D"]}
+        colors={[colors.primarySoft, colors.background]}
         style={styles.container}
       >
         <AppHeader
@@ -129,7 +130,7 @@ export default function TelaProjetos() {
         </View>
 
         {carregando ? (
-          <ActivityIndicator size="large" color="#86EBFF" style={{ flex: 1 }} />
+          <ActivityIndicator size="large" color={colors.primary} style={{ flex: 1 }} />
         ) : perfil?.status !== "autorizado" ? (
           <View
             style={{
@@ -142,7 +143,7 @@ export default function TelaProjetos() {
             <Text
               style={[
                 styles.emptyText,
-                { opacity: 1, fontSize: 18, fontWeight: "bold" },
+                { opacity: 1, fontSize: 18, fontWeight: "bold", color: colors.textPrimary },
               ]}
             >
               Acesso Pendente
@@ -181,13 +182,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 15,
   },
-  namepage: { fontSize: 18, color: "#fff", marginTop: 10, fontWeight: "600" },
+  namepage: { 
+    fontSize: 22, 
+    color: colors.primary, 
+    marginTop: 10, 
+    textAlign: "center",
+    fontWeight: "800",
+    width: "100%",
+  },
   card: {
     width: "100%",
     marginTop: 15,
-    backgroundColor: "#0017c9",
-    borderRadius: 15,
-    elevation: 6,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
+    elevation: 2,
     alignItems: "center",
     overflow: "hidden",
     flexDirection: "row", // Alinha a barra de cor com o conteúdo do card (projeto)
@@ -202,28 +212,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   projectTitle: {
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 15,
+    fontWeight: "bold",
     marginBottom: 12,
   },
   button: {
     width: "80%",
     alignSelf: "center",
-    backgroundColor: "#00849e",
+    backgroundColor: colors.primary,
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: "center",
   },
   buttonText: {
-    color: "#FFFFFF",
+    color: colors.white,
     fontWeight: "600",
     fontSize: 14,
   },
   emptyText: {
-    color: "#fff",
+    color: colors.textSecondary,
     textAlign: "center",
     marginTop: 40,
-    fontSize: 16,
-    opacity: 0.6,
+    fontSize: 15,
   },
 });

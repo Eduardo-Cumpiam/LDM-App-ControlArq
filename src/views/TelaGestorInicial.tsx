@@ -1,19 +1,22 @@
 // TelaGestorInicial.tsx
 // Tela inicial exclusiva para gestores, com caminhos para Gestão, Finanças, Lançamentos e Resultados.
+// O acesso a essa tela foi redirecionado a partir do TelaLogin.
 // ====================================================================================================================
 
 import React, { useCallback } from "react";
+import AppCopyrigth from "../components/AppCopyrigth";
+import AppHeader from "../components/AppHeader";
+
 import { Text, Pressable, StyleSheet, View, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
-import AppCopyrigth from "../components/AppCopyrigth";
-import AppHeader from "../components/AppHeader";
 import { useAuth } from "../context/AuthContext";
 import { useBackHandlerLogout } from "../hooks/useBackHandlerLogout";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import { colors } from "../styles/colors";
 
 type TelaGestorNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -43,9 +46,9 @@ export default function TelaGestorInicial({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <LinearGradient
-        colors={["#000060", "#3232B5", "#00007D"]}
+        colors={[colors.primarySoft, colors.background]}
         style={styles.container}
       >
         <AppHeader
@@ -60,11 +63,13 @@ export default function TelaGestorInicial({ navigation }: Props) {
             <Text style={styles.title}>Painel do Gestor</Text>
             <Text style={styles.subtitle}>Gestão e Controle de Projetos</Text>
 
+            {/*
             <Image
               source={require("../../assets/croqui4.png")}
               style={styles.imageCroqui}
               resizeMode="contain"
             />
+            */}
           </View>
 
           {/* BLOCO CENTRAL: Botões principais */}
@@ -77,7 +82,7 @@ export default function TelaGestorInicial({ navigation }: Props) {
               <Ionicons
                 name="settings"
                 size={22}
-                color="#fff"
+                color={colors.white}
                 style={styles.icon}
               />
               <Text style={styles.buttonText}>Painel de Gestão</Text>
@@ -91,7 +96,7 @@ export default function TelaGestorInicial({ navigation }: Props) {
               <Ionicons
                 name="cash"
                 size={22}
-                color="#fff"
+                color={colors.white}
                 style={styles.icon}
               />
               <Text style={styles.buttonText}>Lançamentos Financeiros</Text>
@@ -99,13 +104,13 @@ export default function TelaGestorInicial({ navigation }: Props) {
 
             {/* Leva para a listagem onde o gestor também pode ver detalhes completos e lançar suas horas */}
             <Pressable
-              style={styles.button}
+              style={styles.buttonFinanceiro}
               onPress={() => navigation.navigate("TelaProjetos")}
             >
               <Ionicons
                 name="folder-open"
                 size={22}
-                color="#fff"
+                color={colors.white}
                 style={styles.icon}
               />
               <Text style={styles.buttonText}>Projetos & Horas</Text>
@@ -113,13 +118,13 @@ export default function TelaGestorInicial({ navigation }: Props) {
 
             {/* Leva para a visualização analítica global de resultados */}
             <Pressable
-              style={styles.button}
+              style={styles.buttonFinanceiro}
               onPress={() => navigation.navigate("TelaPainelAnalitico")}
             >
               <Ionicons
                 name="pie-chart"
                 size={22}
-                color="#fff"
+                color={colors.white}
                 style={styles.icon}
               />
               <Text style={styles.buttonText}>Resultados & Métricas</Text>
@@ -153,13 +158,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 26,
-    color: "#FFF",
+    color: colors.primary,
     fontWeight: "700",
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: "#86EBFF",
+    color: colors.textSecondary,
     fontWeight: "500",
     marginBottom: 15,
   },
@@ -167,7 +172,7 @@ const styles = StyleSheet.create({
     width: "85%",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#00849e",
+    backgroundColor: colors.surface,
     borderRadius: 8,
     paddingVertical: 14,
     paddingHorizontal: 20,
@@ -178,7 +183,7 @@ const styles = StyleSheet.create({
     width: "85%",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FF8C00",
+    backgroundColor: colors.primary,
     borderRadius: 8,
     paddingVertical: 14,
     paddingHorizontal: 20,
@@ -189,7 +194,7 @@ const styles = StyleSheet.create({
     width: "85%",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#10b981",
+    backgroundColor: colors.primaryLight,
     borderRadius: 8,
     paddingVertical: 14,
     paddingHorizontal: 20,
@@ -200,8 +205,13 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   buttonText: {
-    color: "#fff",
+    color: colors.white,
     fontSize: 18,
+    fontWeight: "600",
+  },
+  buttonTextSecundario: {
+    color: colors.textPrimary,
+    fontSize: 16,
     fontWeight: "600",
   },
   imageCroqui: {
