@@ -22,11 +22,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AppHeader from "../components/AppHeader";
-import { useAuth } from "../context/AuthContext";
 import AppCopyrigth from "../components/AppCopyrigth";
+import { useAuth } from "../context/AuthContext";
 import SeletorDataHora from "../components/SeletorDataHora";
 import { RootStackParamList } from "../navigation/AppNavigator";
-import { useLancamentoFinancas, TipoLancamento, } from "../hooks/useLancamentoFinancas";
+import {
+  useLancamentoFinancas,
+  TipoLancamento,
+} from "../hooks/useLancamentoFinancas";
+import { colors } from "../styles/colors";
+import { globalStyles } from "../styles/globalStyles";
 
 type TelaFinancasNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -68,9 +73,9 @@ export default function TelaLancamentoFinancas({ navigation }: Props) {
   const [openDatePicker, setOpenDatePicker] = useState(false);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={globalStyles.container}>
       <LinearGradient
-        colors={["#000060", "#3232B5", "#00007D"]}
+        colors={[colors.primarySoft, colors.background]}
         style={styles.container}
       >
         <AppHeader
@@ -80,13 +85,11 @@ export default function TelaLancamentoFinancas({ navigation }: Props) {
           onVoltar={() => navigation.goBack()}
         />
 
-        <View style={styles.header}>
-          <Text style={styles.namepage}>NOVO LANÇAMENTO FINANCEIRO</Text>
-        </View>
+        <Text style={globalStyles.title}>NOVO LANÇAMENTO FINANCEIRO</Text>
 
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{ flex: 1 }}
+          style={styles.keyboardView}
         >
           <ScrollView
             contentContainerStyle={styles.scrollContainer}
@@ -94,14 +97,14 @@ export default function TelaLancamentoFinancas({ navigation }: Props) {
             showsVerticalScrollIndicator={false}
           >
             {/* SELETOR DE TIPO (Despesa / Imposto / Faturamento) */}
-            <Text style={styles.labelCategoria}>TIPO DE REGISTRO</Text>
+            <Text style={globalStyles.label}>Tipo de registro</Text>
             <View style={styles.containerSegmentado}>
               {(["despesa", "imposto", "faturamento"] as TipoLancamento[]).map(
                 (item) => {
                   const isActive = tipo === item;
-                  let activeColor = "#ef4444"; // despesa
-                  if (item === "faturamento") activeColor = "#10b981";
-                  if (item === "imposto") activeColor = "#f59e0b";
+                  let activeColor = colors.danger; // despesa
+                  if (item === "faturamento") activeColor = colors.success;
+                  if (item === "imposto") activeColor = colors.warning;
 
                   return (
                     <Pressable
@@ -127,7 +130,7 @@ export default function TelaLancamentoFinancas({ navigation }: Props) {
             </View>
 
             {/* SELETOR DO PROJETO CUSTOMIZADO */}
-            <Text style={styles.labelCategoria}>SELECIONE O PROJETO</Text>
+            <Text style={globalStyles.label}>Selecione o projeto</Text>
             <Pressable
               style={styles.customPickerBotao}
               onPress={() => setModalProjetosVisivel(true)}
@@ -140,14 +143,18 @@ export default function TelaLancamentoFinancas({ navigation }: Props) {
               >
                 {projetoAtual
                   ? projetoAtual.nome.toUpperCase()
-                  : "ESCOLHA UM PROJETO..."}
+                  : "Escolha um projeto..."}
               </Text>
-              <Ionicons name="chevron-down" size={20} color="#86EBFF" />
+              <Ionicons
+                name="chevron-down"
+                size={20}
+                color={colors.textSecondary}
+              />
             </Pressable>
 
             {/* SELETOR DE DATA */}
             <SeletorDataHora
-              rotulo="DATA DO EVENTO"
+              rotulo="Data do evento"
               valor={data}
               mostrar={openDatePicker}
               onPress={() => setOpenDatePicker(true)}
@@ -158,23 +165,23 @@ export default function TelaLancamentoFinancas({ navigation }: Props) {
             />
 
             {/* CAMPO DE VALOR */}
-            <Text style={styles.labelCategoria}>VALOR (R$)</Text>
+            <Text style={globalStyles.label}>Valor (R$)</Text>
             <TextInput
-              style={styles.inputValor}
+              style={[globalStyles.input, styles.inputValorText]}
               placeholder="0,00"
-              placeholderTextColor="rgba(255,255,255,0.7)"
+              placeholderTextColor={colors.textLight}
               keyboardType="numeric"
               value={valor}
               onChangeText={setValor}
             />
 
             {/* DESCRIÇÃO / OBSERVAÇÃO */}
-            <Text style={styles.labelCategoria}>DESCRIÇÃO / JUSTIFICATIVA</Text>
+            <Text style={globalStyles.label}>Descrição / Justificativa</Text>
 
             <TextInput
-              style={[styles.input, styles.inputMultiline]}
+              style={[globalStyles.input, globalStyles.textArea]}
               placeholder="Ex: Nota fiscal de serviços, Compra de plotagem..."
-              placeholderTextColor="rgba(255, 255, 255, 0.7)"
+              placeholderTextColor={colors.textLight}
               multiline
               numberOfLines={3}
               value={descricao}
@@ -184,17 +191,17 @@ export default function TelaLancamentoFinancas({ navigation }: Props) {
             {/* BOTÃO SALVAR */}
             <Pressable
               style={({ pressed }) => [
-                styles.botaoSalvar,
-                pressed && { opacity: 0.8 },
+                globalStyles.buttonPrimary,
+                pressed && styles.buttonPressed,
               ]}
               onPress={salvarLancamento}
               disabled={carregando}
             >
               {carregando ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color={colors.white} />
               ) : (
-                <Text style={styles.textoBotaoSalvar}>
-                  CONFIRMAR LANÇAMENTO
+                <Text style={globalStyles.buttonPrimaryText}>
+                  Confirmar lançamento
                 </Text>
               )}
             </Pressable>
@@ -212,12 +219,9 @@ export default function TelaLancamentoFinancas({ navigation }: Props) {
         onRequestClose={() => setModalProjetosVisivel(false)}
       >
         <View style={styles.modalOverlay}>
-          <LinearGradient
-            colors={["#000040", "#000060"]}
-            style={styles.modalContent}
-          >
+          <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitulo}>SELECIONE O PROJETO</Text>
+              <Text style={styles.modalTitulo}>Selecione o projeto</Text>
               <Pressable
                 onPress={() => setModalProjetosVisivel(false)}
                 style={styles.modalBotaoFechar}
@@ -225,7 +229,7 @@ export default function TelaLancamentoFinancas({ navigation }: Props) {
                 <Ionicons
                   name="close-circle-outline"
                   size={28}
-                  color="#FF8C00"
+                  color={colors.danger}
                 />
               </Pressable>
             </View>
@@ -234,7 +238,7 @@ export default function TelaLancamentoFinancas({ navigation }: Props) {
               data={projetos}
               keyExtractor={(item) => item.id}
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 20 }}
+              contentContainerStyle={styles.flatListContent}
               ListEmptyComponent={
                 <Text style={styles.modalEmptyText}>
                   Nenhum projeto ativo disponível.
@@ -264,13 +268,13 @@ export default function TelaLancamentoFinancas({ navigation }: Props) {
                     <Ionicons
                       name="checkmark-circle"
                       size={20}
-                      color="#86EBFF"
+                      color={colors.primary}
                     />
                   )}
                 </Pressable>
               )}
             />
-          </LinearGradient>
+          </View>
         </View>
       </Modal>
     </SafeAreaView>
@@ -278,166 +282,159 @@ export default function TelaLancamentoFinancas({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { paddingHorizontal: 20, flex: 1 },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
+  container: {
+    paddingHorizontal: 20,
+    flex: 1,
   },
-  namepage: { fontSize: 22, color: "#fff", marginTop: 10, fontWeight: "bold" },
+
+  keyboardView: {
+    flex: 1,
+  },
+
   scrollContainer: {
     flexGrow: 1,
     paddingVertical: 10,
     paddingBottom: 40,
   },
-  labelCategoria: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#c0c0c0",
-    marginBottom: 10,
-    marginTop: 5,
+
+  buttonPressed: {
+    opacity: 0.8,
   },
+
   containerSegmentado: {
     flexDirection: "row",
-    backgroundColor: "#3345c9",
-    borderRadius: 12,
-    padding: 6,
-    marginBottom: 18,
-    elevation: 4,
+    backgroundColor: colors.inputBackground,
+    borderRadius: 8,
+    padding: 4,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
   },
+
   botaoSegmentado: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 10,
     alignItems: "center",
-    borderRadius: 8,
+    borderRadius: 6,
   },
+
   textoSegmentado: {
     fontSize: 12,
     fontWeight: "bold",
-    color: "rgba(255, 255, 255, 0.6)",
+    color: colors.textSecondary,
   },
+
   textoSegmentadoAtivo: {
-    color: "#FFF",
+    color: colors.white,
   },
+
   customPickerBotao: {
-    backgroundColor: "#3345c9",
-    borderRadius: 12,
-    marginBottom: 16,
-    elevation: 4,
-    height: 50,
+    minHeight: 42,
+    borderWidth: 2,
+    borderColor: colors.cardBorder,
+    borderRadius: 6,
+    marginBottom: 12,
+    paddingHorizontal: 12,
+    backgroundColor: colors.surface,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 14,
   },
+
   customPickerTexto: {
-    color: "rgba(255, 255, 255, 0.7)",
+    color: colors.textPrimary,
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: "500",
   },
+
   customPickerPlaceholder: {
-    color: "#86EBFF",
+    color: colors.textLight,
     fontWeight: "normal",
   },
-  input: {
-    backgroundColor: "#3345c9",
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    height: 50,
-    fontSize: 14,
-    color: "#FFF",
-    marginBottom: 16,
-    elevation: 4,
-  },
-  inputValor: {
-    backgroundColor: "#3345c9",
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    height: 50,
-    fontSize: 14,
+
+  inputValorText: {
     fontWeight: "bold",
-    color: "#FFF",
-    marginBottom: 16,
-    elevation: 4,
   },
-  inputMultiline: {
-    height: 90,
-    textAlignVertical: "top",
-    paddingVertical: 12,
-  },
-  botaoSalvar: {
-    backgroundColor: "#00aeff",
-    borderRadius: 12,
-    height: 52,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 12,
-    elevation: 6,
-  },
-  textoBotaoSalvar: {
-    color: "#FFF",
-    fontSize: 15,
-    fontWeight: "bold",
-    letterSpacing: 1,
-  },
+
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    justifyContent: "flex-end",
+    backgroundColor: colors.primarySoft,
   },
+
   modalContent: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
     paddingHorizontal: 20,
     paddingTop: 20,
-    maxHeight: "70%",
+    maxHeight: "100%",
+    borderWidth: 1,
+    borderColor: colors.cardBorder,
   },
+
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.1)",
+    borderBottomColor: colors.cardBorder,
     paddingBottom: 12,
   },
+
   modalTitulo: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#86EBFF",
+    color: colors.primary,
     letterSpacing: 0.5,
   },
+
   modalBotaoFechar: {
     padding: 2,
   },
+
+  flatListContent: {
+    paddingBottom: 20,
+  },
+
   modalItem: {
-    backgroundColor: "#3345c9",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.inputBackground,
+    borderRadius: 6,
+    padding: 14,
     marginBottom: 10,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    elevation: 2,
-  },
-  modalItemAtivo: {
     borderWidth: 1,
-    borderColor: "#86EBFF",
-    backgroundColor: "#000090",
+    borderColor: colors.cardBorder,
   },
+
+  modalItemAtivo: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft,
+  },
+
   modalItemTexto: {
-    color: "#FFF",
+    color: colors.textPrimary,
     fontSize: 14,
+    fontWeight: "500",
+  },
+
+  modalItemTextoAtivo: {
+    color: colors.primary,
     fontWeight: "bold",
   },
-  modalItemTextoAtivo: {
-    color: "#86EBFF",
-  },
+
   modalEmptyText: {
-    color: "#FFF",
+    color: colors.textSecondary,
     textAlign: "center",
-    marginTop: 30,
-    opacity: 0.5,
+    marginTop: 20,
+  },
+
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
   },
 });
