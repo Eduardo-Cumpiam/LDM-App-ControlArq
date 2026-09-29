@@ -1,18 +1,11 @@
 {
-    "expo": {
+  "expo": {
     "name": "Control Arq",
     "slug": "LDM-App-ControlArq",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/logotr.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#000060"
-    },
-
     "ios": {
       "supportsTablet": true
     },
@@ -22,7 +15,6 @@
         "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#000060"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.LDMAppControlArq"
     },
@@ -30,7 +22,8 @@
       "favicon": "./assets/logo.png"
     },
     "plugins": [
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-font"
     ]
   }
 }
